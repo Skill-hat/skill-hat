@@ -32,7 +32,7 @@ export default function Profile() {
       origin: { y: 0.6 }
     });
     
-    const text = encodeURIComponent(`I'm thrilled to share that I've successfully completed the ${courseTitle} at NexusAcademy! 🎓 #NexusAcademy #Certification #Learning`);
+    const text = encodeURIComponent(`I'm thrilled to share that I've successfully completed the ${courseTitle} at SkillHatv! #SkillHat #Certification #Learning`);
     window.open(`https://www.linkedin.com/sharing/share-offsite/?text=${text}`, '_blank');
   };
 
