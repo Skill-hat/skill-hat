@@ -14,6 +14,7 @@ export default function Footer() {
     hideRoutes.includes(pathname) ||
     pathname.startsWith("/course/") ||
     pathname.startsWith("/mentors/") ||
+    pathname.startsWith("/admin/") ||
     pathname === "/mentors";
 
   if (shouldHide) return null;

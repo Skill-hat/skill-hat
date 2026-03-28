@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import { motion } from "motion/react";
 import { 
   Plus, 
@@ -8,46 +8,52 @@ import {
   Trash2, 
   Users, 
   BookOpen, 
-  LayoutDashboard, 
-  Search,
-  PlusCircle,
   X,
   Save
 } from "lucide-react";
-import { Course, Mentor, User } from "@/src/types";
+import { Course, Mentor } from "@/src/types";
 import { MOCK_COURSES, MOCK_MENTORS } from "@/src/mockData";
 import { useAuth } from "@/src/context/AuthContext";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { MdDashboard, MdWork, MdSchool, MdPerson } from "react-icons/md";
 
 export default function Admin() {
   const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // 🔐 ADMIN PROTECTION
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("isAdmin");
+    if (!isAdmin) {
+      router.push("/admin/login");
+    }
+  }, []);
+
   const [activeTab, setActiveTab] = useState<"courses" | "mentors">("courses");
   const [courses, setCourses] = useState<Course[]>(MOCK_COURSES);
   const [mentors, setMentors] = useState<Mentor[]>(MOCK_MENTORS);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
 
+  const navItems = [
+    { path: "/admin", label: "Dashboard", icon: MdDashboard },
+    { path: "/admin/internships", label: "Internships", icon: MdWork },
+    { path: "/admin/courses", label: "Courses", icon: MdSchool },
+    { path: "/admin/mentors", label: "Mentors", icon: MdPerson },
+  ];
 
+  const isActive = (path: string) => {
+    if (path === "/admin") return pathname === "/admin";
+    return pathname.startsWith(path);
+  };
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const data: any = Object.fromEntries(formData.entries());
-    
-    // Handle array fields
-    if (activeTab === 'courses') {
-      if (data.curriculum) data.curriculum = data.curriculum.split(",").map((s: string) => s.trim());
-      if (data.mentors) data.mentors = data.mentors.split(",").map((s: string) => s.trim());
-    } else {
-      if (data.expertise) data.expertise = data.expertise.split(",").map((s: string) => s.trim());
-      data.socials = {
-        linkedin: data.linkedin,
-        twitter: data.twitter
-      };
-      delete data.linkedin;
-      delete data.twitter;
-    }
 
-    // Simulate save
     if (editingItem) {
       if (activeTab === 'courses') {
         setCourses(courses.map(c => c._id === editingItem._id ? { ...c, ...data } : c));
@@ -62,7 +68,7 @@ export default function Admin() {
         setMentors([...mentors, newItem]);
       }
     }
-    
+
     setIsModalOpen(false);
     setEditingItem(null);
   };
@@ -75,253 +81,110 @@ export default function Admin() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("isAdmin");
+    router.push("/admin/login");
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Skill-hat Admin</h1>
-          <p className="text-gray-500 mt-1">Manage your professional learning ecosystem.</p>
+    <div className="flex">
+
+      {/* 🔥 SIDEBAR (SMALL WIDTH) */}
+      <aside className="w-56 h-screen bg-white border-r fixed left-0 top-0 flex flex-col shadow-sm">
+
+        <div className="p-5 bg-gradient-to-r from-blue-600 to-purple-600">
+          <h1 className="text-lg font-bold text-white">Admin</h1>
         </div>
+
+        <nav className="flex-1 p-3">
+          <ul className="space-y-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.path}>
+                  <Link
+                    href={item.path}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+                      isActive(item.path)
+                        ? "bg-blue-500 text-white"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="p-3 border-t">
+          <button
+            onClick={handleLogout}
+            className="w-full bg-red-500 text-white py-2 rounded text-sm"
+          >
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      {/* 🔥 MAIN CONTENT */}
+      <div className="ml-56 w-full px-6 py-10">
+
+        <div className="flex justify-between items-center mb-10">
+          <h1 className="text-2xl font-bold">Admin Panel</h1>
+        </div>
+
         <button 
           onClick={() => { setEditingItem(null); setIsModalOpen(true); }}
-          className="bg-[#2563EB] text-white px-6 py-3 rounded-xl font-bold flex items-center hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+          className="bg-blue-600 text-white px-5 py-2 rounded-lg mb-6 flex items-center"
         >
-          <Plus size={20} className="mr-2" />
-          Add New {activeTab === 'courses' ? 'Course' : 'Mentor'}
+          <Plus size={18} className="mr-2" />
+          Add New {activeTab}
         </button>
-      </div>
 
-      {/* Tabs */}
-      <div className="flex space-x-1 bg-gray-100 p-1.5 rounded-2xl w-fit mb-8">
-        <button 
-          onClick={() => setActiveTab("courses")}
-          className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'courses' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-        >
-          <div className="flex items-center">
-            <BookOpen size={18} className="mr-2" /> Courses
-          </div>
-        </button>
-        <button 
-          onClick={() => setActiveTab("mentors")}
-          className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'mentors' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-        >
-          <div className="flex items-center">
-            <Users size={18} className="mr-2" /> Mentors
-          </div>
-        </button>
-      </div>
-
-      {/* Content Table */}
-      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-gray-50/50 border-b border-gray-100">
-                <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  {activeTab === 'courses' ? 'Course Details' : 'Mentor Details'}
-                </th>
-                <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  {activeTab === 'courses' ? 'Price' : 'Expertise'}
-                </th>
-                <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
-                <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {activeTab === 'courses' ? (
-                courses.map(course => (
-                  <tr key={course._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center space-x-4">
-                        <img src={course.thumbnail} className="w-12 h-12 rounded-xl object-cover" referrerPolicy="no-referrer" />
-                        <div>
-                          <p className="font-bold text-gray-900">{course.title}</p>
-                          <p className="text-xs text-gray-500">{course.category}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <span className="font-bold text-gray-900">${course.price}</span>
-                    </td>
-                    <td className="px-8 py-6">
-                      <span className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Active</span>
-                    </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex justify-end space-x-2">
-                        <button 
-                          onClick={() => { setEditingItem(course); setIsModalOpen(true); }}
-                          className="p-2 text-gray-400 hover:text-blue-600 bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(course._id)}
-                          className="p-2 text-gray-400 hover:text-red-500 bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                mentors.map(mentor => (
-                  <tr key={mentor._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center space-x-4">
-                        <img src={mentor.avatar} className="w-12 h-12 rounded-xl object-cover" referrerPolicy="no-referrer" />
-                        <div>
-                          <p className="font-bold text-gray-900">{mentor.name}</p>
-                          <p className="text-xs text-gray-500">{mentor.role}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex flex-wrap gap-1 max-w-[200px]">
-                        {mentor.expertise.map(skill => (
-                          <span key={skill} className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md text-[10px] font-bold">{skill}</span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <span className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Verified</span>
-                    </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex justify-end space-x-2">
-                        <button 
-                          onClick={() => { setEditingItem(mentor); setIsModalOpen(true); }}
-                          className="p-2 text-gray-400 hover:text-blue-600 bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(mentor._id)}
-                          className="p-2 text-gray-400 hover:text-red-500 bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <div className="flex gap-4 mb-6">
+          <button onClick={() => setActiveTab("courses")}>Courses</button>
+          <button onClick={() => setActiveTab("mentors")}>Mentors</button>
         </div>
+
+        {/* LIST */}
+        {activeTab === "courses"
+          ? courses.map(c => (
+              <div key={c._id} className="flex justify-between border p-3 mb-2 rounded">
+                {c.title}
+                <div className="flex gap-2">
+                  <Edit2 size={16} />
+                  <Trash2 size={16} onClick={() => handleDelete(c._id)} />
+                </div>
+              </div>
+            ))
+          : mentors.map(m => (
+              <div key={m._id} className="flex justify-between border p-3 mb-2 rounded">
+                {m.name}
+                <div className="flex gap-2">
+                  <Edit2 size={16} />
+                  <Trash2 size={16} onClick={() => handleDelete(m._id)} />
+                </div>
+              </div>
+            ))}
+
+        {/* MODAL */}
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+            <motion.div className="bg-white p-6 rounded-xl w-[400px]">
+              <form onSubmit={handleSave}>
+                <input name="title" className="border p-2 w-full mb-3" />
+                <button className="bg-blue-600 text-white px-4 py-2 rounded">
+                  Save
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+
       </div>
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white rounded-[40px] w-full max-w-2xl p-10 shadow-2xl max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {editingItem ? 'Edit' : 'Add New'} {activeTab === 'courses' ? 'Course' : 'Mentor'}
-              </h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <X size={24} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSave} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700 ml-1">Title / Name</label>
-                  <input 
-                    name={activeTab === 'courses' ? "title" : "name"}
-                    defaultValue={editingItem ? (activeTab === 'courses' ? editingItem.title : editingItem.name) : ""}
-                    required
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 outline-none focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700 ml-1">{activeTab === 'courses' ? "Category" : "Role"}</label>
-                  <input 
-                    name={activeTab === 'courses' ? "category" : "role"}
-                    defaultValue={editingItem ? (activeTab === 'courses' ? editingItem.category : editingItem.role) : ""}
-                    required
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 outline-none focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700 ml-1">{activeTab === 'courses' ? "Price" : "Expertise (comma separated)"}</label>
-                  <input 
-                    name={activeTab === 'courses' ? "price" : "expertise"}
-                    defaultValue={editingItem ? (activeTab === 'courses' ? editingItem.price : editingItem.expertise?.join(", ")) : ""}
-                    required
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 outline-none focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700 ml-1">{activeTab === 'courses' ? "Duration" : "Avatar URL"}</label>
-                  <input 
-                    name={activeTab === 'courses' ? "duration" : "avatar"}
-                    defaultValue={editingItem ? (activeTab === 'courses' ? editingItem.duration : editingItem.avatar) : ""}
-                    required
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 outline-none focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 ml-1">Description / Bio</label>
-                <textarea 
-                  name={activeTab === 'courses' ? "description" : "bio"}
-                  defaultValue={editingItem ? (activeTab === 'courses' ? editingItem.description : editingItem.bio) : ""}
-                  required
-                  rows={4}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 outline-none focus:ring-2 focus:ring-blue-500/20"
-                />
-              </div>
-
-              {activeTab === 'courses' && (
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700 ml-1">Curriculum (comma separated)</label>
-                  <input 
-                    name="curriculum"
-                    defaultValue={editingItem?.curriculum?.join(", ")}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 outline-none focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-              )}
-
-              {activeTab === 'mentors' && (
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700 ml-1">LinkedIn URL</label>
-                    <input name="linkedin" defaultValue={editingItem?.socials?.linkedin} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 outline-none" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700 ml-1">Twitter URL</label>
-                    <input name="twitter" defaultValue={editingItem?.socials?.twitter} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 outline-none" />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex space-x-4 pt-4">
-                <button 
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-4 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-all"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="flex-1 bg-[#2563EB] text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center justify-center"
-                >
-                  <Save size={20} className="mr-2" /> Save Changes
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 }

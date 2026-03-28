@@ -16,7 +16,7 @@ export default function Navbar() {
 
   const hideNavbarRouters = ["/admin", "/mentors", "/login", "/register"];
 
-  const shouldHide = hideNavbarRouters.includes(pathname) || pathname.startsWith("/course/") || pathname.startsWith("/mentors/");
+  const shouldHide = hideNavbarRouters.includes(pathname) || pathname.startsWith("/course/") || pathname.startsWith("/mentors/")  || pathname.startsWith("/admin/");
 
   if (shouldHide) return null;
 
