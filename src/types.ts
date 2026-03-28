@@ -35,3 +35,20 @@ export interface User {
     certificateId: string;
   }[];
 }
+
+export interface Internship {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  duration: string;
+  stipend: string;
+  description: string;
+  requirements: string;
+  status: "Active" | "Inactive";
+  createdAt: string;
+
+  // ✅ ADD THESE
+  imageUrl?: string;
+  public_id?: string;
+}
