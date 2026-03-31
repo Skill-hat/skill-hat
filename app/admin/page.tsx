@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 export default function Dashboard() {
   // ✅ Context Data
   const { enrollments = [], getTotalRevenue } = useData();
-  
+
   // ✅ Backend States
   const [internships, setInternships] = useState<any[]>([]);
   const [mentors, setMentors] = useState<any[]>([]);
@@ -60,7 +60,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-3 md:p-8 bg-gray-50/50 min-h-screen space-y-6">
-      
+
       {/* --- HEADER --- */}
       <div className="px-1">
         <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">Dashboard</h1>
@@ -75,8 +75,8 @@ export default function Dashboard() {
           { label: "Internships", value: internships.length, icon: <MdWork />, color: "text-indigo-600 bg-indigo-50" },
           { label: "Mentors", value: mentors.length, icon: <MdStar />, color: "text-orange-500 bg-orange-50" },
         ].map((stat, i) => (
-          <motion.div 
-            key={i} 
+          <motion.div
+            key={i}
             whileHover={{ y: -3 }}
             className="bg-white p-3 md:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 text-center md:text-left transition-all"
           >
@@ -93,7 +93,7 @@ export default function Dashboard() {
 
       {/* --- MAIN CONTENT GRID --- */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        
+
         {/* INTERNSHIPS COMPACT LIST */}
         <div className="bg-white rounded-3xl border border-gray-100 p-4 md:p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
@@ -102,21 +102,21 @@ export default function Dashboard() {
               VIEW ALL <MdOutlineArrowForward />
             </Link>
           </div>
-          
+
           <div className="space-y-3">
-            {loading ? [1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-50 animate-pulse rounded-2xl" />) : 
+            {loading ? [1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-50 animate-pulse rounded-2xl" />) :
               internships.slice(0, 3).map((item) => (
                 <div key={item._id} className="p-3 rounded-2xl border border-gray-50 hover:bg-indigo-50/30 transition-all flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                      <img src={item.imageUrl || "/placeholder.jpg"} className="w-full h-full object-cover" alt="" />
-                   </div>
-                   <div className="flex-1 min-w-0">
-                      <h4 className="text-xs md:text-sm font-bold text-gray-800 truncate leading-tight">{item.title}</h4>
-                      <p className="text-[9px] md:text-[10px] text-gray-400 truncate mt-0.5">{item.company} • {item.location}</p>
-                   </div>
-                   <div className="text-right shrink-0">
-                      <p className="text-xs md:text-sm font-black text-emerald-600">₹{item.stipend || "0"}</p>
-                   </div>
+                  <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0">
+                    <img src={item.imageUrl || "/placeholder.jpg"} className="w-full h-full object-cover" alt="" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xs md:text-sm font-bold text-gray-800 truncate leading-tight">{item.title}</h4>
+                    <p className="text-[9px] md:text-[10px] text-gray-400 truncate mt-0.5">{item.company} • {item.location}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-xs md:text-sm font-black text-emerald-600">₹{item.stipend || "0"}</p>
+                  </div>
                 </div>
               ))
             }
@@ -133,19 +133,19 @@ export default function Dashboard() {
           </div>
 
           <div className="space-y-3">
-            {loading ? [1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-50 animate-pulse rounded-2xl" />) : 
+            {loading ? [1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-50 animate-pulse rounded-2xl" />) :
               mentors.slice(0, 3).map((item) => (
                 <div key={item._id} className="p-3 rounded-2xl border border-gray-50 hover:bg-purple-50/30 transition-all flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 shrink-0 overflow-hidden border-2 border-white shadow-sm">
-                      {item.imageUrl ? <img src={item.imageUrl} className="w-full h-full object-cover" /> : item.name?.charAt(0)}
-                   </div>
-                   <div className="flex-1 overflow-hidden">
-                      <h4 className="text-xs md:text-sm font-bold text-gray-800 truncate leading-tight">{item.name}</h4>
-                      <p className="text-[9px] md:text-[10px] text-gray-400 truncate mt-0.5">{item.expertise?.split(',')[0]}</p>
-                   </div>
-                   <div className="flex items-center gap-0.5 text-[10px] font-black text-yellow-500 bg-yellow-50 px-2 py-1 rounded-lg">
-                      <MdStar /> {item.rating || "0"}
-                   </div>
+                  <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 shrink-0 overflow-hidden border-2 border-white shadow-sm">
+                    {item.imageUrl ? <img src={item.imageUrl} className="w-full h-full object-cover" /> : item.name?.charAt(0)}
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <h4 className="text-xs md:text-sm font-bold text-gray-800 truncate leading-tight">{item.name}</h4>
+                    <p className="text-[9px] md:text-[10px] text-gray-400 truncate mt-0.5">{item.expertise?.split(',')[0]}</p>
+                  </div>
+                  <div className="flex items-center gap-0.5 text-[10px] font-black text-yellow-500 bg-yellow-50 px-2 py-1 rounded-lg">
+                    <MdStar /> {item.rating || "0"}
+                  </div>
                 </div>
               ))
             }
@@ -156,7 +156,7 @@ export default function Dashboard() {
       {/* --- ENROLLMENTS TABLE (Simplified for Mobile) --- */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-6">
         <div className="px-5 py-4 border-b border-gray-50">
-           <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Recent Enrollments</h2>
+          <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Recent Enrollments</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -171,9 +171,8 @@ export default function Dashboard() {
                     {new Date(e.enrolledDate).toLocaleDateString('en-IN')}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className={`px-2 py-1 rounded-md text-[8px] md:text-[9px] font-black uppercase tracking-tight shadow-sm border ${
-                      e.status === "Active" ? "bg-green-50 text-green-700 border-green-100" : "bg-gray-50 text-gray-400 border-gray-100"
-                    }`}>
+                    <span className={`px-2 py-1 rounded-md text-[8px] md:text-[9px] font-black uppercase tracking-tight shadow-sm border ${e.status === "Active" ? "bg-green-50 text-green-700 border-green-100" : "bg-gray-50 text-gray-400 border-gray-100"
+                      }`}>
                       {e.status}
                     </span>
                   </td>
