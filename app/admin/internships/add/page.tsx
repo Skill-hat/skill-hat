@@ -328,6 +328,7 @@ export default function AddInternship({
                 </div>
               </div>
             </div>
+             </div>
 
             {/* Duration & Stipend */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
