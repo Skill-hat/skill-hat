@@ -25,12 +25,16 @@ export function Sidebar({ open, setOpen }: any) {
 
   const router = useRouter();
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("isAdmin");
-    sessionStorage.removeItem("token");
+const handleLogout = () => {
+  // ✅ clear BOTH
+  sessionStorage.removeItem("isAdmin");
+  sessionStorage.removeItem("token");
 
-    router.replace("/admin/login");
-  };
+  localStorage.removeItem("token");   // 🔥 ADD THIS
+  localStorage.removeItem("user");    // optional
+
+  router.replace("/admin/login");
+};
 
   const navItems = [
     { path: "/admin", label: "Dashboard", icon: MdDashboard },

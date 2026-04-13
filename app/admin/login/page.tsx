@@ -87,7 +87,7 @@ export default function AdminLogin() {
 
       // Success
       sessionStorage.setItem("isAdmin", "true");
-      if (data.token) sessionStorage.setItem("token", data.token);
+      if (data.token) localStorage.setItem("token", data.token);
 
       toast.success("Login successful");
       router.replace("/admin");

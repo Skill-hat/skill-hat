@@ -14,16 +14,23 @@ export interface Mentor {
 
 
 export interface User {
-  id: string;
-  name: string;
+  id?: string;
+  role?: "admin" | "user",
+  full_name?: string;
   email: string;
-  role: "user" | "admin";
-  enrolledCourses?: string[];
-  certificates?: {
-    courseId: string;
-    issueDate: string;
-    certificateId: string;
-  }[];
+  phone?: string;
+  gender?: string;
+  college?: string;
+  course?: string;
+  branch?: string;
+  graduation_year?: string;
+  state?: string;
+  city?: string;
+  skills?: string[];
+  linkedin?: string;
+  certificates?: any[];
+  internships?: any[];
+  is_active?: boolean;
 }
 
 export interface Internship {

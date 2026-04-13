@@ -18,7 +18,7 @@ import {
   Target,
   IndianRupee,
 } from "lucide-react";
-import { FaUserGraduate } from "react-icons/fa";
+import { FaBuilding, FaUserGraduate } from "react-icons/fa";
 import CountUp from "@/src/components/CountUp";
 import { useRouter } from "next/navigation";
 import { GraduationCap, FileText } from "lucide-react";
@@ -69,9 +69,10 @@ const InternshipCard = ({ item }: any) => {
           {item.title}
         </h3>
 
-        <p className="text-xs sm:text-sm text-gray-500">
-          {item.company} • {item.location}
-        </p>
+       <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1">
+  <FaBuilding className="text-gray-400" />
+  {item.company}
+</p>
 
         <div className="flex justify-between text-xs sm:text-sm text-gray-600 pt-2">
           <span className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
@@ -133,8 +134,6 @@ const MentorCard = ({ mentor }: any) => {
             {mentor.bio || "No bio available"}
           </p>
         </div>
-
-        
       </div>
     </motion.div>
   );

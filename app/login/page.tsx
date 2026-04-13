@@ -11,9 +11,11 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Loader2,           // ← React icon spinner (Lucide)
+  Loader2, // ← React icon spinner (Lucide)
 } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
+
+const API = process.env.NEXT_PUBLIC_APP_URL;
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -42,16 +44,19 @@ export default function Login() {
       setLoading(false);
       return;
     }
+
     if (!isValidEmail(email)) {
       setError("Please enter a valid email address");
       setLoading(false);
       return;
     }
+
     if (!password.trim()) {
       setError("Password is required");
       setLoading(false);
       return;
     }
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
       setLoading(false);
@@ -59,34 +64,51 @@ export default function Login() {
     }
 
     try {
+      const res = await fetch(`${API}/api/users/login/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // 🔥 Save token
+      localStorage.setItem("token", data.token);
+
+      // 🔥 IMPORTANT: fetch user from backend
+      const profileRes = await fetch(`${API}/api/users/profile/`, {
+        headers: {
+          Authorization: `Bearer ${data.token}`,
+        },
+      });
+
+      const userData = await profileRes.json();
+
+      if (!profileRes.ok) {
+        throw new Error("Failed to fetch user");
+      }
+
+      // 🔥 Save user
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+
+      setSuccess("Login successful");
+
       setTimeout(() => {
-        const mockUser = {
-          _id: "u1",
-          name: email.split("@")[0],
-          email: email,
-          role: email.includes("admin") ? "admin" : "user",
-        };
-
-        localStorage.setItem("token", "mock-token");
-        localStorage.setItem("user", JSON.stringify(mockUser));
-
-        if (rememberMe) {
-          localStorage.setItem("rememberMe", "true");
-        } else {
-          localStorage.removeItem("rememberMe");
-        }
-
-        setUser(mockUser as any);
-        setSuccess("Login successfully");
-
-        setTimeout(() => {
-          router.push("/");
-        }, 800);
-
-        setLoading(false);
-      }, 1200);
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+        router.push("/");
+      }, 800);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
       setLoading(false);
     }
   };
@@ -103,7 +125,6 @@ export default function Login() {
       >
         {/* Header */}
         <div className="text-center mb-10">
-         
           <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
             Welcome back
           </h1>
@@ -141,11 +162,17 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           {/* Email */}
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
               Email address
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
+              <Mail
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                size={20}
+              />
               <input
                 id="email"
                 type="email"
@@ -161,7 +188,10 @@ export default function Login() {
           {/* Password */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Password
               </label>
               <Link
@@ -172,7 +202,10 @@ export default function Login() {
               </Link>
             </div>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
+              <Lock
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                size={20}
+              />
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -217,13 +250,17 @@ export default function Login() {
           >
             {loading ? (
               <>
-                <Loader2 className="animate-spin h-5 w-5 text-white" />   {/* ← Clean React icon spinner */}
+                <Loader2 className="animate-spin h-5 w-5 text-white" />{" "}
+                {/* ← Clean React icon spinner */}
                 <span>Signing in...</span>
               </>
             ) : (
               <>
                 Sign in
-                <ChevronRight size={22} className="transition-transform group-hover:translate-x-0.5" />
+                <ChevronRight
+                  size={22}
+                  className="transition-transform group-hover:translate-x-0.5"
+                />
               </>
             )}
           </motion.button>

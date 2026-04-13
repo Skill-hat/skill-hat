@@ -124,12 +124,14 @@ export default function Navbar() {
     "/auth/reset-password",
     "/internships",
     "/internships/[id]",
+    "/profile",
   ];
 
   const shouldHide =
     hideNavbarRouters.includes(pathname) ||
     pathname.startsWith("/course/") ||
     pathname.startsWith("/mentors/") ||
+    pathname.startsWith("/profile/") ||
     pathname.startsWith("/admin/");
 
   if (!isMounted || shouldHide) return null;
@@ -374,7 +376,7 @@ export default function Navbar() {
 
                   {/* Settings */}
                   <Link 
-                    href="/auth/setting" 
+                    href="/profile/setting" 
                     className="flex items-center gap-3 px-4 py-3.5 text-gray-700 hover:bg-gray-200 hover:scale-[1.02] rounded-2xl font-medium transition-all duration-200"
                     onClick={closeMenu}
                   >

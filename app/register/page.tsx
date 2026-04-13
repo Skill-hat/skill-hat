@@ -17,6 +17,8 @@ import {
   GraduationCap,
 } from "lucide-react";
 
+const API = process.env.NEXT_PUBLIC_APP_URL
+
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,50 +40,48 @@ export default function Register() {
     setLoading(true);
     setError("");
 
-    if (!name.trim()) {
-      setError("Full name is required");
-      setLoading(false);
-      return;
-    }
-    if (!email.trim()) {
-      setError("Email address is required");
-      setLoading(false);
-      return;
-    }
-    if (!isValidEmail(email)) {
-      setError("Please enter a valid email address");
-      setLoading(false);
-      return;
-    }
-    if (!password.trim()) {
-      setError("Password is required");
-      setLoading(false);
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      setLoading(false);
-      return;
-    }
-
-    // ← NEW: Terms & Conditions check (mandatory)
-    if (!agreed) {
-      setError("You must agree to the Terms and Conditions to create an account");
-      setLoading(false);
-      return;
-    }
+    if (!name.trim())
+      return (setError("Full name required"), setLoading(false));
+    if (!email.trim()) return (setError("Email required"), setLoading(false));
+    if (!isValidEmail(email))
+      return (setError("Invalid email"), setLoading(false));
+    if (!password || password.length < 6)
+      return (setError("Password must be 6+ chars"), setLoading(false));
+    if (!agreed)
+      return (setError("Accept terms & conditions"), setLoading(false));
 
     try {
-      setTimeout(() => {
-        setSuccess(true);
-        setLoading(false);
+      const res = await fetch(`${API}/api/users/register/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: name,
+          email,
+          password,
+          college: "Not Provided", // 🔥 you can add input later
+          course: "General",
+        }),
+      });
 
-        setTimeout(() => {
-          router.push("/login");
-        }, 2200);
-      }, 1200);
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      // ✅ Save token
+      localStorage.setItem("token", data.token);
+
+      setSuccess(true);
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -137,11 +137,16 @@ export default function Register() {
               transition={{ delay: 0.6 }}
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
             >
-              <GraduationCap size={152} className="text-white drop-shadow-2xl" />
+              <GraduationCap
+                size={152}
+                className="text-white drop-shadow-2xl"
+              />
             </motion.div>
           </div>
 
-          <h2 className="text-5xl font-bold tracking-tighter mb-3">Learn smarter.</h2>
+          <h2 className="text-5xl font-bold tracking-tighter mb-3">
+            Learn smarter.
+          </h2>
           <p className="text-2xl font-medium text-blue-100 max-w-xs">
             Join 10,000+ students mastering the future at Skillhat
           </p>
@@ -181,11 +186,17 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             {/* Full Name */}
             <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Full name
               </label>
               <div className="relative">
-                <User className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
+                <User
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                  size={20}
+                />
                 <input
                   id="name"
                   type="text"
@@ -200,11 +211,17 @@ export default function Register() {
 
             {/* Email */}
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Email address
               </label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
+                <Mail
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                  size={20}
+                />
                 <input
                   id="email"
                   type="email"
@@ -219,11 +236,17 @@ export default function Register() {
 
             {/* Password */}
             <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Password
               </label>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
+                <Lock
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                  size={20}
+                />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -271,7 +294,7 @@ export default function Register() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               type="submit"
-              disabled={loading || !agreed} 
+              disabled={loading || !agreed}
               className="group relative w-full flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? (
@@ -282,7 +305,10 @@ export default function Register() {
               ) : (
                 <>
                   Create account
-                  <ChevronRight size={22} className="transition-transform group-hover:translate-x-0.5" />
+                  <ChevronRight
+                    size={22}
+                    className="transition-transform group-hover:translate-x-0.5"
+                  />
                 </>
               )}
             </motion.button>

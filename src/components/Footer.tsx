@@ -9,7 +9,7 @@ import { FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
 export default function Footer() {
   const pathname = usePathname();
 
-  const hideRoutes = ["/admin", "/register", "/login", "/courses"];
+  const hideRoutes = ["/admin", "/register", "/login", "/courses","/profile/setting"];
 
   const shouldHide =
     hideRoutes.includes(pathname) ||
