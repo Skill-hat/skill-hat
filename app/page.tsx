@@ -180,7 +180,7 @@ export default function Home() {
       {/* HERO SECTION - Responsive */}
       <section className="relative min-h-[85vh] flex items-center justify-center text-center px-4 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {/* <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait">
             <motion.img
               key={imgIndex}
               src={heroImages[imgIndex]}
@@ -191,7 +191,7 @@ export default function Home() {
               className="absolute inset-0 w-full h-full object-cover"
               alt="Background"
             />
-          </AnimatePresence> */}
+          </AnimatePresence>
 
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#fcfcfc]" />
         </div>

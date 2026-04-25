@@ -5,7 +5,11 @@ import { useRouter, usePathname } from "next/navigation";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { Sidebar } from "./sidebar";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -47,7 +51,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // ✅ ADMIN PANEL UI
   return (
     <div className="flex min-h-screen bg-gray-50">
-
       {/* Overlay */}
       {open && (
         <div
@@ -72,9 +75,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           )}
         </button>
 
-        <main className="p-6 pt-0 min-h-screen">
-          {children}
-        </main>
+        <main className="p-6 pt-0 min-h-screen">{children}</main>
       </div>
     </div>
   );
