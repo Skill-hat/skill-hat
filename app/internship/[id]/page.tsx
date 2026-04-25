@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
+import { createPortal } from "react-dom";
 
 const API = process.env.NEXT_PUBLIC_APP_URL;
 
@@ -210,33 +211,74 @@ export default function InternshipDetail() {
                 {internship.company}
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-3 gap-4">
                 {[
                   {
                     icon: <MapPin size={24} />,
                     label: "LOCATION",
                     value: internship.location,
+                    type: "normal",
                   },
                   {
                     icon: <Clock size={24} />,
                     label: "DURATION",
                     value: internship.duration,
+                    type: "normal",
                   },
                   {
                     icon: <IndianRupee size={24} />,
                     label: "STIPEND",
                     value: `₹${internship.stipend}`,
+                    type: "price",
                   },
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6"
+                    className={`relative rounded-2xl p-6 backdrop-blur-xl border transition-all duration-300
+        ${
+          item.type === "price"
+            ? "bg-green-500/10 border-green-400/30 shadow-lg shadow-green-500/20 hover:scale-105"
+            : "bg-white/10 border-white/20"
+        }
+      `}
                   >
-                    <div className="text-indigo-300 mb-3">{item.icon}</div>
-                    <p className="text-white/60 text-xs font-bold uppercase tracking-widest">
+                    {/* 🔥 Badge for price */}
+                    {item.type === "price" && (
+                      <span className="absolute top-3 right-3 text-xs px-2 py-1 bg-green-500 text-white rounded-full font-bold">
+                        BEST VALUE
+                      </span>
+                    )}
+
+                    {/* Icon */}
+                    <div
+                      className={`mb-3 ${
+                        item.type === "price"
+                          ? "text-green-400"
+                          : "text-indigo-300"
+                      }`}
+                    >
+                      {item.icon}
+                    </div>
+
+                    {/* Label */}
+                    <p
+                      className={`text-xs font-bold uppercase tracking-widest ${
+                        item.type === "price"
+                          ? "text-green-300"
+                          : "text-white/60"
+                      }`}
+                    >
                       {item.label}
                     </p>
-                    <p className="font-semibold text-xl mt-1 text-white">
+
+                    {/* Value */}
+                    <p
+                      className={`font-bold mt-1 ${
+                        item.type === "price"
+                          ? "text-2xl text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.6)]"
+                          : "text-xl text-white"
+                      }`}
+                    >
                       {item.value}
                     </p>
                   </div>
@@ -260,51 +302,41 @@ export default function InternshipDetail() {
             </div>
 
             {/* ==================== ENROLLMENT MODAL ==================== */}
-            {showEnrollModal && (
-              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl">
-                  <div className="px-8 pt-8 pb-6">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center text-3xl ${
-                          modalType === "success"
-                            ? "bg-green-100 text-green-600"
-                            : modalType === "info"
-                              ? "bg-blue-100 text-blue-600"
-                              : "bg-red-100 text-red-600"
-                        }`}
+            {showEnrollModal &&
+              createPortal(
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                  <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
+                    {/* Header */}
+                    <div className="px-8 pt-8 pb-6 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-green-100 text-green-600">
+                        <CheckCircle />
+                      </div>
+
+                      <h3 className="text-2xl font-semibold text-gray-900">
+                        {modalTitle}
+                      </h3>
+                    </div>
+
+                    {/* Content */}
+                    <div className="px-8 pb-6">
+                      <p className="text-gray-600 leading-relaxed">
+                        {modalMessage}
+                      </p>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="border-t px-8 py-6 bg-gray-50 flex justify-end">
+                      <button
+                        onClick={() => setShowEnrollModal(false)}
+                        className="px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-black transition"
                       >
-                        {modalType === "success" ? (
-                          <CheckCircle />
-                        ) : (
-                          <AlertCircle />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-semibold text-gray-900">
-                          {modalTitle}
-                        </h3>
-                      </div>
+                        Close
+                      </button>
                     </div>
                   </div>
-
-                  <div className="px-8 pb-8">
-                    <p className="text-gray-600 leading-relaxed">
-                      {modalMessage}
-                    </p>
-                  </div>
-
-                  <div className="border-t px-8 py-6 flex justify-end bg-gray-50 rounded-b-3xl">
-                    <button
-                      onClick={() => setShowEnrollModal(false)}
-                      className="px-8 py-3.5 bg-gray-900 text-white font-medium rounded-2xl hover:bg-black transition"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+                </div>,
+                document.body,
+              )}
 
             {/* Video Section */}
             <motion.div

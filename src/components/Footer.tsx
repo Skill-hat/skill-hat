@@ -63,11 +63,6 @@ export default function Footer() {
                   Our Mentors
                 </Link>
               </li>
-              <li>
-                <Link href="/company/certificates" className="hover:text-blue-600 transition-colors">
-                  Verify Certificate
-                </Link>
-              </li>
             </ul>
           </div>
 

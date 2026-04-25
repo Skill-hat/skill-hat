@@ -27,7 +27,8 @@ type Suggestion = {
 };
 
 const suggestionsData: Suggestion[] = [
-  { label: "Profile", type: "route", path: "/profile" },
+  { label: "profile", type: "route", path: "/profile" },
+  { label: "home", type: "route", path: "/" },
   { label: "Settings", type: "route", path: "/settings" },
   { label: "Mentors", type: "route", path: "/mentors" },
   { label: "Contact Us", type: "route", path: "/company/contactus" },
