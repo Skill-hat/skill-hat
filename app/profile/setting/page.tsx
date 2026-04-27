@@ -6,8 +6,6 @@ import {
   Bell,
   Shield,
   X,
-  LogOut,
-  Search,
   AlertTriangle,
   Trash2,
   Mail,
@@ -114,13 +112,15 @@ export default function SettingsPage() {
     <>
       <div className="pt-14 min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex gap-8">
+          <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar */}
-            <div className="w-64 bg-white rounded-3xl shadow-sm border border-gray-100 p-3 h-fit sticky top-20">
+            <div className="w-full lg:w-64 bg-white rounded-3xl shadow-sm border border-gray-100 p-3 h-fit lg:sticky top-20">
+              {" "}
               <h1 className="text-2xl font-bold text-gray-900 px-4 py-3">
                 Settings
               </h1>
-              <div className="mt-2 space-y-1">
+              <div className="mt-2 flex lg:flex-col gap-2 overflow-x-auto">
+                {" "}
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -139,16 +139,16 @@ export default function SettingsPage() {
             </div>
 
             {/* Main Area */}
-            <div className="flex-1 max-w-3xl">
+            <div className="flex-1 w-full max-w-3xl mx-auto">
+              {" "}
               <h2 className="text-4xl font-bold text-gray-900 mb-1">
                 Account Settings
               </h2>
               <p className="text-gray-500 mb-8">
                 Manage your notifications and account security
               </p>
-
               {activeTab === "notifications" && (
-                <div className="bg-white rounded-3xl shadow-sm p-8">
+                <div className="bg-white rounded-3xl shadow-sm p-5 sm:p-8">
                   <div className="flex items-center justify-center flex-col py-12 text-center">
                     <Bell className="w-16 h-16 text-blue-600 mb-4" />
                     <h3 className="text-2xl font-semibold">
@@ -164,7 +164,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               )}
-
               {activeTab === "account" && (
                 <div className="bg-white rounded-3xl shadow-sm p-8">
                   {deleteStatus === "success" ? (
@@ -212,7 +211,7 @@ export default function SettingsPage() {
                             placeholder="Your account password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:border-red-500 outline-none text-lg"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:border-red-500 outline-none text-lg"
                           />
                         </div>
 
@@ -225,7 +224,7 @@ export default function SettingsPage() {
                             placeholder="Re-enter your password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:border-red-500 outline-none text-lg"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:border-red-500 outline-none text-lg"
                           />
                         </div>
 
@@ -261,7 +260,7 @@ export default function SettingsPage() {
                           disabled={
                             deleteStatus === "verifying" || !confirmChecked
                           }
-                          className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-white font-semibold py-4 rounded-3xl flex items-center justify-center gap-2 text-lg"
+                          className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-white font-semibold py-4 rounded-3xl flex items-center justify-center gap-1 "
                         >
                           {deleteStatus === "verifying" ? (
                             <>Verifying &amp; Deleting Account...</>
@@ -279,7 +278,7 @@ export default function SettingsPage() {
                         <p className="text-gray-500 text-sm mb-6">
                           Before deleting your account, you may want to:
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {/* Contact Us */}
                           <Link
                             href="/company/contactus"
