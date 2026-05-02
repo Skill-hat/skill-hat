@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { MdAdminPanelSettings, MdOutlineSecurity } from "react-icons/md";
 import { FiMail, FiLock, FiArrowLeft } from "react-icons/fi";
+import CircularText from "@/src/components/CircularText";
 
 const API = process.env.NEXT_PUBLIC_APP_URL;
 
@@ -77,9 +78,9 @@ export default function AdminLogin() {
       const res = await fetch(`${API}/auth/verify-otp/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          email: email.trim().toLowerCase(), 
-          otp: otp.trim() 
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          otp: otp.trim(),
         }),
       });
 
@@ -105,56 +106,66 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-90 via-blue-950 to-indigo-950 p-4 overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(at_top_right,#4f46e510_0%,transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(at_bottom_left,#6366f110_0%,transparent_50%)]"></div>
+    <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 p-4 overflow-hidden">
+      {/* Centered circular text as background (behind card) */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <div className="scale-350 sm:scale-200 md:scale-[2.5] lg:scale-[3.8] transition-transform duration-700">
+          <CircularText
+            text="WELCOME*TO*SKILLHAT*"
+            spinDuration={25}
+            className="text-white/20"
+          />
+        </div>
+      </div>
 
-      <div className="relative w-full max-w-md">
-        {/* Card */}
+      {/* Additional background glow effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(at_top_right,#4f46e510_0%,transparent_50%)] z-0"></div>
+
+      {/* Card (above background) */}
+      <div className="relative z-10 w-full max-w-md">
         <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/50 border border-white/10 overflow-hidden">
           {/* Header */}
-          <div className="px-10 pt-10 pb-8 text-center border-b border-gray-100">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-inner">
-              <MdAdminPanelSettings className="text-white" size={52} />
+          <div className="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 sm:pb-8 text-center border-b border-gray-100">
+            <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-inner">
+              <MdAdminPanelSettings className="text-white" size={40} />
             </div>
-            
-            <h1 className="mt-6 text-3xl font-semibold text-gray-900 tracking-tight">
+
+            <h1 className="mt-6 text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">
               Admin Portal
             </h1>
-            <p className="text-gray-600 mt-2 text-lg">
+            <p className="text-gray-600 mt-2 text-sm sm:text-lg">
               Secure access for authorized personnel only
             </p>
 
             <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500">
-              <MdOutlineSecurity className="text-emerald-500" />
+              <MdOutlineSecurity className="text-emerald-500" size={14} />
               <span>Enterprise Grade Security</span>
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mx-10 mt-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-sm flex items-start gap-3">
-              <div className="w-5 h-5 mt-0.5 flex-shrink-0">⚠️</div>
+            <div className="mx-6 sm:mx-10 mt-4 sm:mt-6 p-3 sm:p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-sm flex items-start gap-2 sm:gap-3">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0">⚠️</div>
               <span>{error}</span>
             </div>
           )}
 
           {/* Email Step */}
           {step === "email" && (
-            <form onSubmit={sendOtp} className="px-10 pt-8 pb-12 space-y-8">
+            <form onSubmit={sendOtp} className="px-6 sm:px-10 pt-6 sm:pt-8 pb-8 sm:pb-12 space-y-6 sm:space-y-8">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Administrator Email
                 </label>
                 <div className="relative">
-                  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
-                    <FiMail size={20} />
+                  <div className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-gray-400">
+                    <FiMail size={18} />
                   </div>
                   <input
                     type="email"
                     placeholder="admin@yourcompany.com"
-                    className="w-full pl-12 pr-5 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-base transition-all"
+                    className="w-full pl-10 sm:pl-12 pr-4 sm:pr-5 py-3 sm:py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm sm:text-base transition-all"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -165,10 +176,10 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading || !email.trim()}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 rounded-2xl transition-all duration-300 text-lg shadow-lg shadow-blue-500/30 disabled:shadow-none flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 sm:py-4 rounded-2xl transition-all duration-300 text-base sm:text-lg shadow-lg shadow-blue-500/30 disabled:shadow-none flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <>Sending OTP...</>
+                  "Sending OTP..."
                 ) : (
                   <>
                     Send Secure OTP <FiLock className="text-lg" />
@@ -180,22 +191,22 @@ export default function AdminLogin() {
 
           {/* OTP Step */}
           {step === "otp" && (
-            <form onSubmit={verifyOtp} className="px-10 pt-8 pb-12 space-y-8">
+            <form onSubmit={verifyOtp} className="px-6 sm:px-10 pt-6 sm:pt-8 pb-8 sm:pb-12 space-y-6 sm:space-y-8">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
                   Enter verification code sent to
                 </label>
-                <p className="text-blue-700 font-medium text-lg mb-4">{email}</p>
+                <p className="text-blue-700 font-medium text-lg sm:text-xl mb-3 sm:mb-4">{email}</p>
 
                 <div className="relative">
-                  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
-                    <FiLock size={20} />
+                  <div className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-gray-400">
+                    <FiLock size={18} />
                   </div>
                   <input
                     type="text"
                     placeholder="••••••"
                     maxLength={6}
-                    className="w-full pl-12 pr-5 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent text-3xl tracking-[8px] text-center font-mono"
+                    className="w-full pl-10 sm:pl-12 pr-4 sm:pr-5 py-3 sm:py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent text-2xl sm:text-3xl tracking-[8px] text-center font-mono"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                     required
@@ -206,7 +217,7 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading || otp.length < 6}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 rounded-2xl transition-all duration-300 text-lg shadow-lg shadow-emerald-500/30 flex items-center justify-center"
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 sm:py-4 rounded-2xl transition-all duration-300 text-base sm:text-lg shadow-lg shadow-emerald-500/30 flex items-center justify-center"
               >
                 {loading ? "Verifying..." : "Verify & Access Dashboard"}
               </button>
@@ -218,7 +229,7 @@ export default function AdminLogin() {
                   setOtp("");
                   setError("");
                 }}
-                className="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-blue-700 font-medium py-3 transition-colors"
+                className="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-blue-700 font-medium py-2 sm:py-3 transition-colors text-sm sm:text-base"
               >
                 <FiArrowLeft className="text-lg" />
                 Change Email Address
@@ -228,7 +239,7 @@ export default function AdminLogin() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-white/60 text-xs mt-8">
+        <p className="text-center text-white/60 text-xs mt-6 sm:mt-8">
           Protected by advanced multi-factor authentication
         </p>
       </div>

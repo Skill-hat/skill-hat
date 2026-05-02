@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  Award,
-  BookOpen,
   User as UserIcon,
   Linkedin,
   Phone,

@@ -117,15 +117,12 @@ export default function Navbar() {
   // 2. EARLY RETURNS / CONDITIONAL RENDERS
   // ==========================================
   const hideNavbarRouters = [
-    "/mentors",
     "/login",
     "/register",
     "/admin",
     "/auth/forgot-password",
     "/auth/reset-password",
-    "/internships",
     "/internships/[id]",
-    "/profile",
   ];
 
   const shouldHide =

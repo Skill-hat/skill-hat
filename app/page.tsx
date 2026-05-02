@@ -28,10 +28,10 @@ const API = process.env.NEXT_PUBLIC_APP_URL;
 
 // Background Images
 const heroImages = [
-  "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2000",
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000",
-  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2000",
-  "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000",
+  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2000", // team coding
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000", // planning board
+  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2000", // open laptop + code
+  "https://images.unsplash.com/photo-1581092787732-03b0d29a8aec?q=80&w=2000", // servers / backend
 ];
 
 const stats = [
@@ -143,14 +143,39 @@ export default function Home() {
   const [mentors, setMentors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [imgIndex, setImgIndex] = useState(0);
+  const [imagesReady, setImagesReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const preload = heroImages.map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // keep going even if one fails
+        }),
+    );
+
+    Promise.all(preload).then(() => {
+      if (!cancelled) setImagesReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Hero Background Auto Change
   useEffect(() => {
+    if (!imagesReady) return; // wait until loaded
+
     const timer = setInterval(() => {
       setImgIndex((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
+    }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [imagesReady]);
 
   // Fetch Data
   useEffect(() => {
@@ -177,25 +202,37 @@ export default function Home() {
   return (
     <div className="space-y-16 md:space-y-20 pb-16 md:pb-20 bg-[#fcfcfc]">
       {/* HERO SECTION - Responsive */}
-      <section className="relative min-h-[85vh] flex items-center justify-center text-center px-4 overflow-hidden">
+      {/* HERO SECTION - FULLY RESPONSIVE */}
+      <section className="relative min-h-[85vh] flex items-center justify-center text-center px-4 overflow-hidden bg-slate-900">
+        {/* Hero background – dark fallback always visible */}
         <div className="absolute inset-0 z-0">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={imgIndex}
-              src={heroImages[imgIndex]}
-              initial={{ opacity: 0, scale: 1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 10 }}
-              transition={{ duration: 1, ease: "easeInOut" }}
-              className="absolute inset-0 w-full h-full object-cover"
-              alt="Background"
-            />
-          </AnimatePresence>
-
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/10 to-[#fcfcfc]" />
+          {imagesReady ? (
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                key={imgIndex}
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ duration: 1.6, ease: "easeInOut" }}
+                className="absolute inset-0 w-full h-full bg-slate-900"
+                style={{
+                  backgroundImage: `url(${heroImages[imgIndex]})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
+            </AnimatePresence>
+          ) : (
+            <div className="absolute inset-0 bg-slate-900" />
+          )}
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto space-y-6 px-4">
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/10 via-black/10 to-[#fcfcfc]" />
+
+        {/* Content */}
+        <div className="relative z-20 max-w-4xl mx-auto space-y-6 px-4">
+          {/* CircularText */}
           <div className="absolute left-[-200] top-40 -translate-y-1/2 hidden md:block">
             <CircularText
               text="WELCOME*TO*SKILLHAT*"
@@ -204,6 +241,7 @@ export default function Home() {
             />
           </div>
 
+          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -249,7 +287,7 @@ export default function Home() {
       </section>
 
       {/* STATS SECTION - Responsive */}
-      <div className="max-w-7xl mx-auto px-4 -mt-20 sm:-mt-28 md:-mt-32 relative z-20">
+      <div className="px-4 -mt-20 sm:-mt-28 md:-mt-32 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 bg-white p-6 md:p-8 lg:p-10 rounded-[2rem] border shadow-xl">
           {stats.map((stat, i) => (
             <div key={i} className="text-center group">

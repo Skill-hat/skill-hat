@@ -14,13 +14,10 @@ import confetti from "canvas-confetti";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-import { useAuth } from "@/src/context/AuthContext";
-
 const API = process.env.NEXT_PUBLIC_APP_URL;
 
 export default function CertificatePage() {
-  const { id } = useParams(); // 🔥 this is certificate_id
-  const { user } = useAuth();
+  const { id } = useParams(); // certificate_id
   const router = useRouter();
   const certificateRef = useRef<HTMLDivElement>(null);
 
@@ -29,14 +26,14 @@ export default function CertificatePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // 🔥 FETCH FROM BACKEND
+  // 🔥 FETCH CERTIFICATE
   useEffect(() => {
     if (!id) return;
 
     const fetchCertificate = async () => {
       try {
         const res = await fetch(
-          `${API}/verify-certificate?certificate_id=${id}`
+          `${API}/upload/verify-certificate?certificate_id=${id}`,
         );
 
         const data = await res.json();
@@ -59,7 +56,7 @@ export default function CertificatePage() {
     confetti({ particleCount: 180, spread: 70, origin: { y: 0.6 } });
   };
 
-  // 📄 PDF FUNCTION (UPDATED WITH REAL DATA)
+  // 📄 PDF DOWNLOAD
   const handleDownloadPDF = async () => {
     if (!certificateRef.current || !certificateData) return;
 
@@ -110,9 +107,7 @@ export default function CertificatePage() {
           <div style="display:flex;justify-content:space-around;">
             <div>
               <p style="font-size:12px;">Course</p>
-              <p style="font-weight:bold;">
-                ${certificateData.internship_title}
-              </p>
+              <p style="font-weight:bold;">${certificateData.internship_title}</p>
             </div>
 
             <div>
@@ -163,39 +158,29 @@ export default function CertificatePage() {
     }
   };
 
-  // 🔄 LOADING
+  // 🔄 LOADING UI
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center h-screen text-lg">
         Verifying certificate...
       </div>
     );
   }
 
-  // ❌ ERROR
+  // ❌ ERROR UI
   if (error || !certificateData) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-red-500">
+      <div className="flex flex-col items-center justify-center h-screen text-red-500">
         <h1 className="text-2xl font-bold">Invalid Certificate ❌</h1>
         <p>{error}</p>
       </div>
     );
   }
 
-  // 🔒 LOGIN CHECK
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Please login to view certificate.
-      </div>
-    );
-  }
-
-  // ✅ SAME UI (NO CHANGE)
+  // ✅ MAIN UI (UNCHANGED)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 py-12 px-4">
       <div className="max-w-5xl mx-auto">
-
         <button
           onClick={() => router.push("/profile")}
           className="flex items-center gap-2 mb-8 text-gray-600 hover:text-gray-900"
@@ -208,6 +193,7 @@ export default function CertificatePage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-3xl shadow-2xl overflow-hidden"
         >
+          {/* Header */}
           <div className="bg-[#1e40af] px-10 py-6 text-white flex justify-between">
             <div className="flex items-center gap-3">
               <FaAward size={36} />
@@ -216,11 +202,15 @@ export default function CertificatePage() {
                 <p className="text-sm">Academy of Excellence</p>
               </div>
             </div>
+          </div>
+
+          {certificateData && (
             <div className="bg-white/20 px-4 py-2 rounded-xl text-sm flex items-center gap-2">
               <FaCheckCircle /> VERIFIED
             </div>
-          </div>
+          )}
 
+          {/* Certificate UI */}
           <div ref={certificateRef} className="p-14 text-center bg-white">
             <h2 className="text-4xl font-bold mb-6">
               {certificateData.internship_title}
@@ -232,9 +222,7 @@ export default function CertificatePage() {
               {certificateData.user_name}
             </h3>
 
-            <p className="mb-10">
-              has successfully completed the program.
-            </p>
+            <p className="mb-10">has successfully completed the program.</p>
 
             <div className="flex justify-around">
               <div>
@@ -258,6 +246,7 @@ export default function CertificatePage() {
             </div>
           </div>
 
+          {/* Actions */}
           <div className="px-10 py-6 bg-gray-50 flex justify-between">
             <button
               onClick={handleDownloadPDF}
@@ -272,8 +261,8 @@ export default function CertificatePage() {
                 triggerConfetti();
                 window.open(
                   `https://www.linkedin.com/sharing/share-offsite/?text=${encodeURIComponent(
-                    `I earned ${certificateData.internship_title}`
-                  )}`
+                    `I earned ${certificateData.internship_title}`,
+                  )}`,
                 );
               }}
               className="border px-6 py-3 rounded-xl"
@@ -282,6 +271,10 @@ export default function CertificatePage() {
             </button>
           </div>
         </motion.div>
+      </div>
+
+      <div className="mt-6 text-center text-sm text-gray-500">
+        This certificate has been verified by SkillHat.
       </div>
     </div>
   );
