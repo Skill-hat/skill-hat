@@ -105,34 +105,47 @@ const MentorCard = ({ mentor }: any) => {
   return (
     <motion.div
       whileHover={{ y: -6 }}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 group cursor-pointer w-full"
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden"
     >
-      <img
-        src={mentor.imageUrl || "/placeholder.jpg"}
-        className="w-full h-32 sm:h-36 object-cover rounded-xl mb-3"
-        alt={mentor.name}
-      />
+      {/* Image with experience badge */}
+      <div className="relative h-40 sm:h-48 overflow-hidden">
+        <img
+          src={mentor.imageUrl || "/placeholder.jpg"}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          alt={mentor.name}
+        />
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        {/* Experience badge – highlighted */}
+        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-blue-600 px-3 py-1 rounded-full text-xs font-bold shadow">
+          {mentor.experience} yrs exp
+        </div>
+      </div>
 
-      <div className="px-3 pb-3">
-        <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-          {mentor.name}
-        </h3>
-
-        <p className="text-xs sm:text-sm text-blue-600 font-medium mb-2">
-          {mentor.expertise}
-        </p>
-
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-2">
-          <GraduationCap size={14} className="text-blue-500" />
-          <span className="line-clamp-1">
-            {mentor.qualification || "No qualification"}
-          </span>
+      {/* Card content */}
+      <div className="p-4 sm:p-5 space-y-3">
+        {/* Name & Email */}
+        <div>
+          <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
+            {mentor.name}
+          </h3>
+          <p className="text-xs text-gray-500 truncate">{mentor.email}</p>
         </div>
 
-        <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-500 mb-3">
-          <FileText size={14} className="text-gray-400 mt-[2px]" />
+        {/* Expertise with icon – fixed size */}
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+          <GraduationCap size={16} className="text-blue-500 shrink-0" />
+          <span className="line-clamp-1">{mentor.expertise}</span>
+        </div>
+
+        {/* Bio with icon – fixed size */}
+        <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-500">
+          <FileText size={14} className="text-gray-400 mt-0.5 shrink-0" />
           <p className="line-clamp-2">{mentor.bio || "No bio available"}</p>
         </div>
+
+        {/* Optional View Profile link */}
+
       </div>
     </motion.div>
   );

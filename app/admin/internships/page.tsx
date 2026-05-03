@@ -29,7 +29,7 @@ import {
 } from "@/src/components/ui/alert-dialog";
 import { toast } from "sonner";
 
-const API = process.env.NEXT_PUBLIC_APP_URL || "https://skillhat-backend.onrender.com";
+const API = process.env.NEXT_PUBLIC_APP_URL;
 
 export default function InternshipsPage() {
   const [internships, setInternships] = useState<any[]>([]);

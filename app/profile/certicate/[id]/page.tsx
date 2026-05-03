@@ -4,284 +4,267 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  FaAward,
   FaDownload,
   FaLinkedin,
   FaArrowLeft,
-  FaCheckCircle,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import confetti from "canvas-confetti";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-import { useAuth } from "@/src/context/AuthContext";
-
 const API = process.env.NEXT_PUBLIC_APP_URL;
 
 export default function CertificatePage() {
-  const { id } = useParams(); // 🔥 this is certificate_id
-  const { user } = useAuth();
+  const { id } = useParams();
   const router = useRouter();
   const certificateRef = useRef<HTMLDivElement>(null);
 
-  const [downloading, setDownloading] = useState(false);
   const [certificateData, setCertificateData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔥 FETCH FROM BACKEND
   useEffect(() => {
-    if (!id) return;
-
     const fetchCertificate = async () => {
       try {
-        const res = await fetch(
-          `${API}/verify-certificate?certificate_id=${id}`
-        );
-
+        const res = await fetch(`${API}/upload/verify/${id}/`);
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.message || "Invalid certificate");
+        if (!res.ok || !data.valid) {
+          setError("Invalid Certificate");
+          return;
+        }
 
         setCertificateData(data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load certificate");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCertificate();
+    if (id) fetchCertificate();
   }, [id]);
 
-  // 🎉 Confetti
   const triggerConfetti = () => {
-    confetti({ particleCount: 180, spread: 70, origin: { y: 0.6 } });
+    confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
   };
 
-  // 📄 PDF FUNCTION (UPDATED WITH REAL DATA)
+  // High Quality PDF Download
   const handleDownloadPDF = async () => {
-    if (!certificateRef.current || !certificateData) return;
+  if (!certificateRef.current) return;
 
-    setDownloading(true);
+  setDownloading(true);
 
-    try {
-      const container = document.createElement("div");
+  try {
+    const element = certificateRef.current;
 
-      container.style.position = "fixed";
-      container.style.top = "-9999px";
-      container.style.left = "0";
-      container.style.width = "1123px";
-      container.style.height = "794px";
-      container.style.background = "#ffffff";
-      container.style.fontFamily = "Arial, sans-serif";
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false,
 
-      const clone = certificateRef.current.cloneNode(true) as HTMLElement;
+      // ✅ FIX: sanitize unsupported colors
+      onclone: (clonedDoc) => {
+        const allElements = clonedDoc.querySelectorAll("*");
 
-      const all = clone.querySelectorAll("*");
-      all.forEach((el: any) => {
-        el.removeAttribute("class");
-        el.style.all = "unset";
-      });
+        allElements.forEach((el: any) => {
+          const style = window.getComputedStyle(el);
 
-      clone.innerHTML = `
-        <div style="width:1123px;height:794px;padding:60px;text-align:center;">
-          <h1 style="font-size:42px;font-weight:bold;margin-bottom:20px;">SkillHat</h1>
-          <p style="margin-bottom:20px;">Certificate of Completion</p>
+          // Replace unsupported lab/oklch colors
+          if (style.color.includes("lab") || style.color.includes("oklch")) {
+            el.style.color = "#000000";
+          }
 
-          <h2 style="font-size:30px;margin-bottom:30px;">
-            ${certificateData.internship_title}
-          </h2>
+          if (
+            style.backgroundColor.includes("lab") ||
+            style.backgroundColor.includes("oklch")
+          ) {
+            el.style.backgroundColor = "#ffffff";
+          }
 
-          <p style="margin-bottom:10px;">This is to certify that</p>
+          if (style.borderColor.includes("lab")) {
+            el.style.borderColor = "#1e3a8a";
+          }
+        });
+      },
+    });
 
-          <h3 style="font-size:28px;font-weight:bold;margin-bottom:10px;">
-            ${certificateData.user_name}
-          </h3>
+    const imgData = canvas.toDataURL("image/png");
 
-          <p style="margin-bottom:20px;">
-            ${certificateData.user_email}
-          </p>
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: [297, 210],
+    });
 
-          <p style="margin-bottom:40px;">
-            has successfully completed the program.
-          </p>
+    pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
 
-          <div style="display:flex;justify-content:space-around;">
-            <div>
-              <p style="font-size:12px;">Course</p>
-              <p style="font-weight:bold;">
-                ${certificateData.internship_title}
-              </p>
-            </div>
+    pdf.save(`Certificate-${certificateData.certificate_id}.pdf`);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to generate PDF");
+  } finally {
+    setDownloading(false);
+  }
+};
 
-            <div>
-              <p style="font-size:12px;">Issued</p>
-              <p style="font-weight:bold;">
-                ${new Date(certificateData.issued_at).toLocaleDateString()}
-              </p>
-            </div>
-
-            <div>
-              <p style="font-size:12px;">ID</p>
-              <p style="font-weight:bold;">
-                ${certificateData.certificate_id}
-              </p>
-            </div>
-          </div>
-        </div>
-      `;
-
-      container.appendChild(clone);
-      document.body.appendChild(container);
-
-      await new Promise((r) => setTimeout(r, 200));
-
-      const canvas = await html2canvas(container, {
-        scale: 3,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-      });
-
-      document.body.removeChild(container);
-
-      const imgData = canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "px",
-        format: [1123, 794],
-      });
-
-      pdf.addImage(imgData, "PNG", 0, 0, 1123, 794);
-      pdf.save(`SkillHat-Certificate-${certificateData.certificate_id}.pdf`);
-    } catch (error) {
-      console.error("PDF ERROR:", error);
-      alert("PDF generation failed");
-    } finally {
-      setDownloading(false);
-    }
-  };
-
-  // 🔄 LOADING
-  if (loading) {
+  if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Verifying certificate...
+        Loading Certificate...
       </div>
     );
-  }
-
-  // ❌ ERROR
   if (error || !certificateData) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-red-500">
-        <h1 className="text-2xl font-bold">Invalid Certificate ❌</h1>
-        <p>{error}</p>
-      </div>
-    );
-  }
-
-  // 🔒 LOGIN CHECK
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Please login to view certificate.
-      </div>
-    );
-  }
-
-  // ✅ SAME UI (NO CHANGE)
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-
+        <p className="text-2xl">{error}</p>
         <button
-          onClick={() => router.push("/profile")}
-          className="flex items-center gap-2 mb-8 text-gray-600 hover:text-gray-900"
+          onClick={() => router.push("/verify")}
+          className="mt-6 underline"
         >
-          <FaArrowLeft /> Back to Profile
+          Go to Verification
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100 py-12 px-4">
+      <div className="max-w-5xl mx-auto">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 mb-8 text-gray-600 hover:text-black"
+        >
+          <FaArrowLeft /> Back
         </button>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl shadow-2xl overflow-hidden"
+          className="shadow-2xl"
         >
-          <div className="bg-[#1e40af] px-10 py-6 text-white flex justify-between">
-            <div className="flex items-center gap-3">
-              <FaAward size={36} />
-              <div>
-                <h1 className="text-3xl font-bold">SkillHat</h1>
-                <p className="text-sm">Academy of Excellence</p>
+          {/* Certificate Container */}
+          <div
+            ref={certificateRef}
+            className="bg-white border-[12px] border-[#1e3a8a] rounded-none aspect-[297/210] w-full max-w-[1000px] mx-auto relative overflow-hidden"
+            style={{ boxShadow: "0 25px 50px -12px rgb(0 0 0 / 0.4)" }}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-start px-16 pt-12">
+              <div className="flex items-center gap-4">
+                {/* Dynamic Logo / Organization */}
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    {certificateData.organization_name || "SkillHat"}
+                  </h1>
+                  <p className="text-sm text-gray-600">
+                    {certificateData.organization_tagline ||
+                      "Empowering Innovation, Building Future"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <h2 className="text-5xl font-bold tracking-wider text-[#1e3a8a]">
+                  CERTIFICATE
+                </h2>
+                <p className="text-xl text-gray-700 -mt-2">OF INTERNSHIP</p>
               </div>
             </div>
-            <div className="bg-white/20 px-4 py-2 rounded-xl text-sm flex items-center gap-2">
-              <FaCheckCircle /> VERIFIED
+
+            {/* Content */}
+            <div className="px-16 pt-8 text-center">
+              <p className="text-lg mb-4">This is to certify that</p>
+
+              <h3 className="text-4xl font-bold text-[#1e40af] mb-2 tracking-wide">
+                {certificateData.user_name}
+              </h3>
+
+              <p className="text-gray-600 mb-8">
+                has successfully completed an internship as
+              </p>
+
+              {/* Role Box */}
+              <div className="inline-block border-2 border-[#1e40af] rounded-full px-10 py-3 mb-10">
+                <p className="text-2xl font-semibold text-[#1e40af]">
+                  {certificateData.internship_title ||
+                    "Software Development Intern"}
+                </p>
+              </div>
+
+              <p className="max-w-2xl mx-auto text-gray-700 leading-relaxed mb-12 text-[15px]">
+                During this period, {certificateData.user_name?.split(" ")[0]}{" "}
+                worked on various tasks including
+                {certificateData.description ||
+                  "project development, problem solving, and demonstrating dedication and a keen learning attitude."}
+              </p>
+
+              {/* Duration */}
+              <div className="flex justify-center items-center gap-3 mb-16">
+                <FaCalendarAlt className="text-[#1e40af] text-3xl" />
+                <div>
+                  <p className="text-sm uppercase tracking-widest text-gray-500">
+                    Issued
+                  </p>
+                  <p className="font-semibold text-lg">
+                    {certificateData.start_date
+                      ? `${certificateData.start_date} - ${certificateData.end_date || "Present"}`
+                      : new Date(
+                          certificateData.issued_at,
+                        ).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div ref={certificateRef} className="p-14 text-center bg-white">
-            <h2 className="text-4xl font-bold mb-6">
-              {certificateData.internship_title}
-            </h2>
-
-            <p className="mb-4">This is to certify that</p>
-
-            <h3 className="text-3xl font-semibold mb-2">
-              {certificateData.user_name}
-            </h3>
-
-            <p className="mb-10">
-              has successfully completed the program.
-            </p>
-
-            <div className="flex justify-around">
+            {/* Footer Signature */}
+            <div className="absolute bottom-12 left-16 right-16 border-t border-gray-400 pt-6 flex justify-between items-end">
               <div>
-                <p className="text-sm">Course</p>
-                <p className="font-semibold">
-                  {certificateData.internship_title}
+                <p className="font-semibold text-lg">Authorized Signatory</p>
+                <p className="text-gray-600">
+                  {certificateData.organization_name || "SkillHat"}
                 </p>
               </div>
-              <div>
-                <p className="text-sm">Issued</p>
-                <p className="font-semibold">
-                  {new Date(certificateData.issued_at).toLocaleDateString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm">ID</p>
-                <p className="font-semibold">
+
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Certificate ID</p>
+                <p className="font-mono text-sm">
                   {certificateData.certificate_id}
                 </p>
               </div>
             </div>
           </div>
-
-          <div className="px-10 py-6 bg-gray-50 flex justify-between">
-            <button
-              onClick={handleDownloadPDF}
-              disabled={downloading}
-              className="bg-blue-600 text-white px-4 py-2 rounded-2xl"
-            >
-              {downloading ? "Generating..." : "Download PDF"}
-            </button>
-
-            <button
-              onClick={() => {
-                triggerConfetti();
-                window.open(
-                  `https://www.linkedin.com/sharing/share-offsite/?text=${encodeURIComponent(
-                    `I earned ${certificateData.internship_title}`
-                  )}`
-                );
-              }}
-              className="border px-6 py-3 rounded-xl"
-            >
-              <FaLinkedin size={30} />
-            </button>
-          </div>
         </motion.div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center gap-4 mt-10">
+          <button
+            onClick={handleDownloadPDF}
+            disabled={downloading}
+            className="flex items-center gap-3 bg-blue-700 hover:bg-blue-800 text-white px-10 py-4 rounded-2xl font-semibold text-lg transition disabled:opacity-70"
+          >
+            <FaDownload />
+            {downloading ? "Generating PDF..." : "Download Certificate"}
+          </button>
+
+          <button
+            onClick={() => {
+              triggerConfetti();
+              window.open(
+                `https://www.linkedin.com/sharing/share-offsite/?text=${encodeURIComponent(
+                  `I completed my internship at ${certificateData.organization_name || "SkillHat"}! 🎉`,
+                )}`,
+              );
+            }}
+            className="flex items-center gap-3 border-2 border-gray-700 hover:bg-gray-100 px-8 py-4 rounded-2xl font-medium"
+          >
+            <FaLinkedin size={24} /> Share on LinkedIn
+          </button>
+        </div>
       </div>
     </div>
   );

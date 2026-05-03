@@ -293,10 +293,10 @@ export default function Dashboard() {
                     <td className="px-3 md:px-4 py-3 md:py-4">
                       <div>
                         <p className="font-medium text-gray-900 text-xs md:text-sm">
-                          {enr.user.name}
+                          {enr.user?.name}
                         </p>
                         <p className="text-[10px] md:text-xs text-gray-500 truncate max-w-[120px] md:max-w-[180px]">
-                          {enr.user.email}
+                          {enr.user?.email}
                         </p>
                       </div>
                     </td>

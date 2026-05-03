@@ -29,6 +29,7 @@ export default function CertificatesPage() {
         });
 
         const data = await res.json();
+        console.log(data)
         if (res.ok) {
           setCertificates(data.certificates || []);
         }
@@ -73,20 +74,20 @@ export default function CertificatesPage() {
               </div>
 
               <div className="text-[10px] font-mono text-gray-400 mt-1">
-                ID: {cert.certificateId}
+               Certificate ID: {cert.certificateId}
               </div>
 
               {/* Buttons - tight */}
               <div className="flex gap-2 mt-6">
-                <Link
-                  href={`/profile/certicate/${cert.id}`}
+                <button
+                  onClick={() => window.open(`/profile/certicate/${cert.certificateId}`)}
                   className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-2xl font-semibold hover:bg-blue-700 text-sm transition-all"
                 >
                   <FaEye /> View
-                </Link>
+                </button>
 
                 <button
-                  onClick={() => window.open(`/profile/certicate/${cert.id}`, "_blank")}
+                  onClick={() => window.open(`/verify/${cert.certificateId}`, "_blank")}
                   className="flex items-center justify-center gap-2 border border-gray-300 hover:bg-gray-50 px-5 rounded-2xl transition-all"
                 >
                   <FaDownload size={18} />

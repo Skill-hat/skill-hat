@@ -11,7 +11,8 @@ import {
   MdAdminPanelSettings,
 } from "react-icons/md";
 import { useRouter } from "next/navigation";
-import { LogInIcon } from "lucide-react";
+import { DockIcon, LogInIcon } from "lucide-react";
+import { HiDocument } from "react-icons/hi";
 
 export function Sidebar({ open, setOpen }: any) {
   const pathname = usePathname() || "";
@@ -54,6 +55,7 @@ export function Sidebar({ open, setOpen }: any) {
     { path: "/admin/mentors", label: "Mentors", icon: MdAdminPanelSettings },
     { path: "/admin/accessControl", label: "Controls", icon: MdControlCamera },
     { path: "/admin/enrollments", label: "Enrollments", icon: MdPerson },
+    { path: "/admin/certificates", label: "Certificates", icon: HiDocument },
   ];
 
   const isActive = (path: string) => {

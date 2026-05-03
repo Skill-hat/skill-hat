@@ -132,7 +132,7 @@ const CircularText: React.FC<CircularTextProps> = ({
       <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
         <Image
           src="/logo.png"
-          alt="center image"
+          alt="."
           width={140}
           height={140}
           className="rounded-full object-contain"

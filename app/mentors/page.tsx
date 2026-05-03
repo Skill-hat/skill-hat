@@ -148,7 +148,7 @@ export default function Mentors() {
                   </p>
 
                   <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mt-4 flex-1">
-                    {mentor.bio || "Experienced mentor helping students grow in their careers."}
+                    {mentor.bio}
                   </p>
 
                   {/* Expertise */}

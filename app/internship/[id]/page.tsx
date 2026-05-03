@@ -181,7 +181,6 @@ export default function InternshipDetail() {
             quality={90}
           />
           {/* Dark Overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/85 to-transparent" />
           <div className="absolute inset-0 bg-black/40" />
         </div>
 
@@ -207,8 +206,8 @@ export default function InternshipDetail() {
               <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold leading-tight tracking-tighter">
                 {internship.title}
               </h1>
-              <p className="text-xl sm:text-2xl text-indigo-100 font-medium">
-                {internship.company}
+              <p className="text-xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] uppercase">
+               Company : {internship.company}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -315,7 +314,9 @@ export default function InternshipDetail() {
                 />
               ) : (
                 <div className="aspect-video bg-slate-800 flex items-center justify-center">
-                  <p className="text-white/60 text-sm sm:text-base">Video preview coming soon</p>
+                  <p className="text-white/60 text-sm sm:text-base">
+                    Video preview coming soon
+                  </p>
                 </div>
               )}
             </motion.div>
@@ -367,7 +368,9 @@ export default function InternshipDetail() {
             <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-100">
               <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                 <Users className="text-indigo-600" size={28} />
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Mentors</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  Mentors
+                </h2>
               </div>
               <div className="space-y-4 sm:space-y-6">
                 {internship.mentors && internship.mentors.length > 0 ? (
@@ -390,7 +393,9 @@ export default function InternshipDetail() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 italic text-sm sm:text-base">No mentors listed yet.</p>
+                  <p className="text-gray-500 italic text-sm sm:text-base">
+                    No mentors listed yet.
+                  </p>
                 )}
               </div>
             </div>
@@ -398,7 +403,9 @@ export default function InternshipDetail() {
             {/* CTA */}
             <div className="bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-2xl">
               <Calendar size={40} className="mb-4 sm:mb-6 opacity-90" />
-              <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Launch Your Career</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+                Launch Your Career
+              </h3>
               <p className="text-white/80 mb-6 sm:mb-8 leading-relaxed text-sm sm:text-base">
                 Apply today and get a chance to work with industry leaders.
               </p>
