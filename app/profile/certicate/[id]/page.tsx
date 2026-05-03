@@ -54,63 +54,63 @@ export default function CertificatePage() {
 
   // High Quality PDF Download
   const handleDownloadPDF = async () => {
-  if (!certificateRef.current) return;
+    if (!certificateRef.current) return;
 
-  setDownloading(true);
+    setDownloading(true);
 
-  try {
-    const element = certificateRef.current;
+    try {
+      const element = certificateRef.current;
 
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      logging: false,
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
 
-      // ✅ FIX: sanitize unsupported colors
-      onclone: (clonedDoc) => {
-        const allElements = clonedDoc.querySelectorAll("*");
+        // ✅ FIX: sanitize unsupported colors
+        onclone: (clonedDoc) => {
+          const allElements = clonedDoc.querySelectorAll("*");
 
-        allElements.forEach((el: any) => {
-          const style = window.getComputedStyle(el);
+          allElements.forEach((el: any) => {
+            const style = window.getComputedStyle(el);
 
-          // Replace unsupported lab/oklch colors
-          if (style.color.includes("lab") || style.color.includes("oklch")) {
-            el.style.color = "#000000";
-          }
+            // Replace unsupported lab/oklch colors
+            if (style.color.includes("lab") || style.color.includes("oklch")) {
+              el.style.color = "#000000";
+            }
 
-          if (
-            style.backgroundColor.includes("lab") ||
-            style.backgroundColor.includes("oklch")
-          ) {
-            el.style.backgroundColor = "#ffffff";
-          }
+            if (
+              style.backgroundColor.includes("lab") ||
+              style.backgroundColor.includes("oklch")
+            ) {
+              el.style.backgroundColor = "#ffffff";
+            }
 
-          if (style.borderColor.includes("lab")) {
-            el.style.borderColor = "#1e3a8a";
-          }
-        });
-      },
-    });
+            if (style.borderColor.includes("lab")) {
+              el.style.borderColor = "#1e3a8a";
+            }
+          });
+        },
+      });
 
-    const imgData = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "mm",
-      format: [297, 210],
-    });
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [297, 210],
+      });
 
-    pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
+      pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
 
-    pdf.save(`Certificate-${certificateData.certificate_id}.pdf`);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to generate PDF");
-  } finally {
-    setDownloading(false);
-  }
-};
+      pdf.save(`Certificate-${certificateData.certificate_id}.pdf`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate PDF");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (loading)
     return (
@@ -136,7 +136,7 @@ export default function CertificatePage() {
     <div className="min-h-screen bg-gray-100 py-12 px-4">
       <div className="max-w-5xl mx-auto">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push("/")}
           className="flex items-center gap-2 mb-8 text-gray-600 hover:text-black"
         >
           <FaArrowLeft /> Back
@@ -204,25 +204,50 @@ export default function CertificatePage() {
               </p>
 
               {/* Duration */}
-              <div className="flex justify-center items-center gap-3 mb-16">
-                <FaCalendarAlt className="text-[#1e40af] text-3xl" />
-                <div>
-                  <p className="text-sm uppercase tracking-widest text-gray-500">
-                    Issued
+              <div className="flex items-center justify-center gap-4 mb-16">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <FaCalendarAlt className="text-[#1e40af] text-xl" />
+                </div>
+
+                <div className="text-left">
+                  <p className="text-xs uppercase tracking-wider text-gray-500">
+                    Issued On
                   </p>
-                  <p className="font-semibold text-lg">
+
+                  <p className="font-semibold text-lg text-gray-800">
                     {certificateData.start_date
-                      ? `${certificateData.start_date} - ${certificateData.end_date || "Present"}`
-                      : new Date(
-                          certificateData.issued_at,
-                        ).toLocaleDateString()}
+                      ? `${new Date(
+                          certificateData.start_date,
+                        ).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })} - ${
+                          certificateData.end_date
+                            ? new Date(
+                                certificateData.end_date,
+                              ).toLocaleDateString("en-IN", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })
+                            : "Present"
+                        }`
+                      : new Date(certificateData.issued_at).toLocaleDateString(
+                          "en-IN",
+                          {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          },
+                        )}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Footer Signature */}
-            <div className="absolute bottom-12 left-16 right-16 border-t border-gray-400 pt-6 flex justify-between items-end">
+            <div className="absolute bottom-12 left-16 right-16 pt-6 flex justify-between items-end">
               <div>
                 <p className="font-semibold text-lg">Authorized Signatory</p>
                 <p className="text-gray-600">
@@ -231,8 +256,17 @@ export default function CertificatePage() {
               </div>
 
               <div className="text-right">
-                <p className="text-sm text-gray-500">Certificate ID</p>
-                <p className="font-mono text-sm">
+                <p className="text-sm text-black-500">Verify at</p>
+                <a
+                  href={`https://www.skillhat.in/verify/${certificateData.certificate_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-sm text-blue-600 underline hover:text-blue-800"
+                >
+                  {`www.skillhat.in/verify/${certificateData.certificate_id}`}
+                </a>
+                <p className="text-sm text-black-500">Certificate ID</p>
+                <p className="font-mono blue-600">
                   {certificateData.certificate_id}
                 </p>
               </div>
