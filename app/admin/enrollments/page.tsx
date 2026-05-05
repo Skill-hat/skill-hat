@@ -96,6 +96,13 @@ export default function EnrollmentsPage() {
 
   const handleSendCertificate = async (enr: Enrollment) => {
     try {
+      // 🔥 Optimistic UI (instant disable)
+      setEnrollments((prev) =>
+        prev.map((e) =>
+          e._id === enr._id ? { ...e, certificate_issued: true } : e,
+        ),
+      );
+
       const token = localStorage.getItem("token");
 
       const res = await fetch(`${API}/upload/send-certificate/`, {
@@ -113,15 +120,8 @@ export default function EnrollmentsPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to send certificate");
+        throw new Error(data.error);
       }
-
-      // 🔥 UPDATE UI INSTANTLY
-      setEnrollments((prev) =>
-        prev.map((e) =>
-          e._id === enr._id ? { ...e, certificate_issued: true } : e,
-        ),
-      );
     } catch (err: any) {
       alert(err.message);
     }
@@ -451,10 +451,10 @@ export default function EnrollmentsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-lg text-gray-900 truncate">
-                      {enr.user.name}
+                      {enr.user?.name}
                     </h3>
                     <p className="text-gray-500 text-sm truncate">
-                      {enr.user.email}
+                      {enr.user?.email}
                     </p>
                   </div>
                 </div>
@@ -619,7 +619,7 @@ export default function EnrollmentsPage() {
             <div className="px-8 pb-8">
               <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
                 <p className="text-sm text-gray-600">Student:</p>
-                <p className="font-semibold">{enrollmentToDelete.user.name}</p>
+                <p className="font-semibold">{enrollmentToDelete.user?.name}</p>
                 <p className="text-xs text-gray-500 mt-3">Internship:</p>
                 <p className="font-medium">
                   {enrollmentToDelete.internship?.title}

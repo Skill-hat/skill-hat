@@ -43,10 +43,10 @@ export default function Mentors() {
   );
 
   return (
-<div className="bg-gray-50">      
+<div className="bg-gray-50 pt-15">      
       
       {/* MAIN CONTENT */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16 ">
         
         {/* Section Header */}
                <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
@@ -148,7 +148,7 @@ export default function Mentors() {
                   </p>
 
                   <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mt-4 flex-1">
-                    {mentor.bio || "Experienced mentor helping students grow in their careers."}
+                    {mentor.bio}
                   </p>
 
                   {/* Expertise */}

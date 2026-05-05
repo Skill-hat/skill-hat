@@ -1,5 +1,10 @@
 "use client";
-import { MdPeople, MdOutlineArrowForward, MdOutlineFace, MdWork } from "react-icons/md";
+import {
+  MdPeople,
+  MdOutlineArrowForward,
+  MdOutlineFace,
+  MdWork,
+} from "react-icons/md";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -13,15 +18,10 @@ export default function Dashboard() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [recentEnrollments, setRecentEnrollments] = useState<any[]>([]);
 
-  // ✅ 1. Fetch Internships (Backend API)
   const fetchInternships = async () => {
     try {
       const res = await fetch(`${API}/upload/internships/list/`);
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch internships");
-      }
-
+      if (!res.ok) throw new Error("Failed to fetch internships");
       const data = await res.json();
       setInternships(data);
     } catch (error) {
@@ -29,15 +29,10 @@ export default function Dashboard() {
     }
   };
 
-  // ✅ 2. Fetch Mentors (Backend API)
   const fetchMentors = async () => {
     try {
       const res = await fetch(`${API}/api/mentors/list/`);
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch mentors");
-      }
-
+      if (!res.ok) throw new Error("Failed to fetch mentors");
       const data = await res.json();
       setMentors(data);
     } catch (error) {
@@ -45,25 +40,12 @@ export default function Dashboard() {
     }
   };
 
-  // ✅ LOAD ALL DATA
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await Promise.all([fetchInternships(), fetchMentors()]);
-      setLoading(false);
-    };
-    loadData();
-  }, []);
-
   const fetchEnrollments = async () => {
     try {
       const res = await fetch(`${API}/upload/enrollments/`);
       const json = await res.json();
       const allEnrollments = json.enrollments || json.data || json || [];
-
       setEnrollments(allEnrollments);
-
-      // Sort and take recent 6
       const sorted = [...allEnrollments].sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
@@ -75,12 +57,12 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchEnrollments();
-  }, []);
-
-  // Call it when component mounts
-  useEffect(() => {
-    fetchEnrollments();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchInternships(), fetchMentors(), fetchEnrollments()]);
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
   const formatDate = (dateStr: string) => {
@@ -94,14 +76,14 @@ export default function Dashboard() {
 
   const isRecent = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
-    return diff < 24 * 60 * 60 * 1000; // Last 24 hours
+    return diff < 24 * 60 * 60 * 1000;
   };
 
   return (
-    <div className="p-3 md:p-8 bg-gray-50/50 min-h-screen space-y-6">
-      {/* --- HEADER --- */}
+    <div className="p-3 md:p-8 bg-gray-50/50 min-h-screen space-y-4 md:space-y-6">
+      {/* HEADER – scales beautifully */}
       <div className="px-1">
-        <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">
+        <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">
           Dashboard
         </h1>
         <p className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-[0.2em] mt-1">
@@ -109,26 +91,25 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* --- QUICK STATS (Mobile: 2 Columns | Desktop: 4 Columns) --- */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+      {/* QUICK STATS – 2 columns on mobile, 4 on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
         {[
-          // { label: "Revenue", value: `₹${totalRevenue}`, icon: <MdAttachMoney />, color: "text-emerald-600 bg-emerald-50" },
           {
             label: "Students",
             value: enrollments.length,
-            icon: <MdPeople />,
+            icon: <MdPeople size={20} />,
             color: "text-blue-600 bg-blue-50",
           },
           {
             label: "Internships",
             value: internships.length,
-            icon: <MdWork />,
+            icon: <MdWork size={20} />,
             color: "text-indigo-600 bg-indigo-50",
           },
           {
             label: "Mentors",
             value: mentors.length,
-            icon: <MdPeople />,
+            icon: <MdPeople size={20} />,
             color: "text-orange-500 bg-orange-50",
           },
         ].map((stat, i) => (
@@ -154,23 +135,22 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* --- MAIN CONTENT GRID --- */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* INTERNSHIPS COMPACT LIST */}
-        <div className="bg-white rounded-3xl border border-gray-100 p-4 md:p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm md:text-lg font-black text-gray-800 uppercase tracking-tight">
+      {/* MAIN CONTENT – 1 column on mobile, 2 on extra large */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+        {/* INTERNSHIPS LIST */}
+        <div className="bg-white rounded-2xl md:rounded-3xl border border-gray-100 p-3 md:p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4 md:mb-5">
+            <h2 className="text-xs md:text-lg font-black text-gray-800 uppercase tracking-tight">
               Internships
             </h2>
             <Link
               href="/admin/internships"
-              className="text-indigo-600 text-[10px] md:text-xs font-bold flex items-center gap-1 hover:underline"
+              className="text-indigo-600 text-[10px] md:text-xs font-bold flex items-center gap-1 hover:underline active:scale-95 transition-transform"
             >
               VIEW ALL <MdOutlineArrowForward />
             </Link>
           </div>
-
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {loading
               ? [1, 2, 3].map((i) => (
                   <div
@@ -183,7 +163,7 @@ export default function Dashboard() {
                     key={item._id}
                     className="p-3 rounded-2xl border border-gray-50 hover:bg-indigo-50/30 transition-all flex items-center gap-4"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0">
                       <img
                         src={item.imageUrl || "/placeholder.jpg"}
                         className="w-full h-full object-cover"
@@ -208,21 +188,20 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* MENTORS COMPACT LIST */}
-        <div className="bg-white rounded-3xl border border-gray-100 p-4 md:p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm md:text-lg font-black text-gray-800 uppercase tracking-tight">
+        {/* MENTORS LIST */}
+        <div className="bg-white rounded-2xl md:rounded-3xl border border-gray-100 p-3 md:p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4 md:mb-5">
+            <h2 className="text-xs md:text-lg font-black text-gray-800 uppercase tracking-tight">
               Top Mentors
             </h2>
             <Link
               href="/admin/mentors"
-              className="text-purple-600 text-[10px] md:text-xs font-bold flex items-center gap-1 hover:underline"
+              className="text-purple-600 text-[10px] md:text-xs font-bold flex items-center gap-1 hover:underline active:scale-95 transition-transform"
             >
               VIEW ALL <MdOutlineArrowForward />
             </Link>
           </div>
-
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {loading
               ? [1, 2, 3].map((i) => (
                   <div
@@ -235,7 +214,7 @@ export default function Dashboard() {
                     key={item._id}
                     className="p-3 rounded-2xl border border-gray-50 hover:bg-purple-50/30 transition-all flex items-center gap-3"
                   >
-                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 shrink-0 overflow-hidden border-2 border-white shadow-sm">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 shrink-0 overflow-hidden border-2 border-white shadow-sm">
                       {item.imageUrl ? (
                         <img
                           src={item.imageUrl}
@@ -259,37 +238,37 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* --- ENROLLMENTS TABLE (Simplified for Mobile) --- */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-6">
-        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
-          <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">
+      {/* ENROLLMENTS TABLE – scrolls horizontally on mobile */}
+      <div className="bg-white rounded-2xl md:rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+        <div className="px-4 md:px-5 py-3 md:py-4 border-b border-gray-50 flex items-center justify-between">
+          <h2 className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-widest leading-none">
             Recent Enrollments
           </h2>
           <a
             href="/admin/enrollments"
-            className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            className="text-[10px] md:text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
             View All →
           </a>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-2 md:mx-0">
+          <table className="w-full min-w-[600px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 md:px-4 py-2 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                   Student
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 md:px-4 py-2 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                   Internship
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 md:px-4 py-2 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                   Company
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 md:px-4 py-2 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 md:px-4 py-2 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                   Status
                 </th>
               </tr>
@@ -300,7 +279,7 @@ export default function Dashboard() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="p-10 text-center text-sm text-gray-400"
+                    className="p-6 md:p-10 text-center text-xs md:text-sm text-gray-400"
                   >
                     No recent enrollments yet
                   </td>
@@ -311,39 +290,39 @@ export default function Dashboard() {
                     key={index}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-4 py-4">
+                    <td className="px-3 md:px-4 py-3 md:py-4">
                       <div>
-                        <p className="font-medium text-gray-900">
-                          {enr.user.name}
+                        <p className="font-medium text-gray-900 text-xs md:text-sm">
+                          {enr.user?.name}
                         </p>
-                        <p className="text-xs text-gray-500 truncate max-w-[180px]">
-                          {enr.user.email}
+                        <p className="text-[10px] md:text-xs text-gray-500 truncate max-w-[120px] md:max-w-[180px]">
+                          {enr.user?.email}
                         </p>
                       </div>
                     </td>
 
-                    <td className="px-4 py-4">
-                      <p className="font-medium text-gray-800">
+                    <td className="px-3 md:px-4 py-3 md:py-4">
+                      <p className="font-medium text-gray-800 text-xs md:text-sm">
                         {enr.internship?.title}
                       </p>
                     </td>
 
-                    <td className="px-4 py-4 text-gray-600">
+                    <td className="px-3 md:px-4 py-3 md:py-4 text-gray-600 text-xs md:text-sm">
                       {enr.internship?.company}
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-gray-600">
+                    <td className="px-3 md:px-4 py-3 md:py-4 text-gray-600 text-xs md:text-sm whitespace-nowrap">
                       {formatDate(enr.created_at)}
                     </td>
 
-                    <td className="px-4 py-4">
+                    <td className="px-3 md:px-4 py-3 md:py-4">
                       {isRecent(enr.created_at) ? (
-                        <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-                          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold">
+                          <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-500 rounded-full animate-pulse"></span>
                           Recent
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-semibold">
+                        <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold">
                           Older
                         </span>
                       )}

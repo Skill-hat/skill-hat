@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  Award,
-  BookOpen,
   User as UserIcon,
   Linkedin,
   Phone,
@@ -82,7 +80,7 @@ export default function Profile() {
         {/* Profile Header (same as before) */}
         <section className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col md:flex-row items-start gap-8">
           {/* ... (Personal Information + Education section same rakha hai) ... */}
-          <div className="w-32 h-32 bg-blue-100 rounded-3xl flex items-center justify-center text-blue-600 flex-shrink-0">
+          <div className="w-22 h-22 bg-blue-100 rounded-3xl flex items-center justify-center text-blue-600 flex-shrink-0">
             <UserIcon size={64} />
           </div>
 

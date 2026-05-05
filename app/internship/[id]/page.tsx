@@ -170,7 +170,7 @@ export default function InternshipDetail() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Hero Section - Using API imageUrl as Cover */}
-      <section className="relative min-h-[600px] flex items-center text-white pt-24 pb-32 overflow-hidden bg-slate-900">
+      <section className="relative min-h-[70vh] sm:min-h-[600px] flex items-center text-white pt-20 sm:pt-24 pb-24 sm:pb-32 overflow-hidden bg-slate-900">
         <div className="absolute inset-0 z-0">
           <Image
             src={bannerImage}
@@ -181,37 +181,36 @@ export default function InternshipDetail() {
             quality={90}
           />
           {/* Dark Overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/85 to-transparent" />
           <div className="absolute inset-0 bg-black/40" />
         </div>
 
-        <div className="max-w-6xl mx-auto px-6 relative z-10 w-full">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 w-full">
           <Link
             href="/internships"
-            className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-10 transition-colors group"
+            className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 sm:mb-10 transition-colors group"
           >
             <ArrowLeft
               size={20}
               className="group-hover:-translate-x-1 transition-transform"
             />
-            <span>Back to Internships</span>
+            <span className="text-sm sm:text-base">Back to Internships</span>
           </Link>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 bg-indigo-600/40 border border-indigo-400/30 text-white text-sm px-4 py-1.5 rounded-full mb-6 backdrop-blur-md">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="inline-flex items-center gap-2 bg-indigo-600/40 border border-indigo-400/30 text-white text-xs sm:text-sm px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-2 sm:mb-6 backdrop-blur-md">
                 <Briefcase size={18} />
                 <span className="font-medium">Hiring Now</span>
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tighter">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold leading-tight tracking-tighter">
                 {internship.title}
               </h1>
-              <p className="text-2xl text-indigo-100 font-medium">
-                {internship.company}
+              <p className="text-xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] uppercase">
+               Company : {internship.company}
               </p>
 
-              <div className="grid grid-cols-3 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   {
                     icon: <MapPin size={24} />,
@@ -227,14 +226,14 @@ export default function InternshipDetail() {
                   },
                   {
                     icon: <IndianRupee size={24} />,
-                    label: "STIPEND",
+                    label: "PRICE",
                     value: `₹${internship.stipend}`,
                     type: "price",
                   },
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className={`relative rounded-2xl p-6 backdrop-blur-xl border transition-all duration-300
+                    className={`relative rounded-xl sm:rounded-2xl p-4 sm:p-6 backdrop-blur-xl border transition-all duration-300
         ${
           item.type === "price"
             ? "bg-green-500/10 border-green-400/30 shadow-lg shadow-green-500/20 hover:scale-105"
@@ -244,14 +243,14 @@ export default function InternshipDetail() {
                   >
                     {/* 🔥 Badge for price */}
                     {item.type === "price" && (
-                      <span className="absolute top-3 right-3 text-xs px-2 py-1 bg-green-500 text-white rounded-full font-bold">
+                      <span className="absolute top-2 right-2 sm:top-3 sm:right-3 text-xs px-2 py-1 bg-green-500 text-white rounded-full font-bold">
                         BEST VALUE
                       </span>
                     )}
 
                     {/* Icon */}
                     <div
-                      className={`mb-3 ${
+                      className={`mb-2 sm:mb-3 ${
                         item.type === "price"
                           ? "text-green-400"
                           : "text-indigo-300"
@@ -275,8 +274,8 @@ export default function InternshipDetail() {
                     <p
                       className={`font-bold mt-1 ${
                         item.type === "price"
-                          ? "text-2xl text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.6)]"
-                          : "text-xl text-white"
+                          ? "text-xl sm:text-2xl text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.6)]"
+                          : "text-lg sm:text-xl text-white"
                       }`}
                     >
                       {item.value}
@@ -287,7 +286,7 @@ export default function InternshipDetail() {
               <button
                 onClick={handleEnroll}
                 disabled={isEnrolling || isEnrolled}
-                className={`px-10 py-4 rounded-2xl text-lg font-semibold transition-all ${
+                className={`w-full sm:w-auto px-8 sm:px-10 py-4 rounded-2xl text-lg font-semibold transition-all ${
                   isEnrolled
                     ? "bg-green-500 cursor-not-allowed"
                     : "bg-blue-600 hover:bg-blue-700"
@@ -301,48 +300,11 @@ export default function InternshipDetail() {
               </button>
             </div>
 
-            {/* ==================== ENROLLMENT MODAL ==================== */}
-            {showEnrollModal &&
-              createPortal(
-                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                  <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
-                    {/* Header */}
-                    <div className="px-8 pt-8 pb-6 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-green-100 text-green-600">
-                        <CheckCircle />
-                      </div>
-
-                      <h3 className="text-2xl font-semibold text-gray-900">
-                        {modalTitle}
-                      </h3>
-                    </div>
-
-                    {/* Content */}
-                    <div className="px-8 pb-6">
-                      <p className="text-gray-600 leading-relaxed">
-                        {modalMessage}
-                      </p>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="border-t px-8 py-6 bg-gray-50 flex justify-end">
-                      <button
-                        onClick={() => setShowEnrollModal(false)}
-                        className="px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-black transition"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>,
-                document.body,
-              )}
-
             {/* Video Section */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/20"
+              className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/20 mt-8 lg:mt-0"
             >
               {videoId ? (
                 <iframe
@@ -352,7 +314,9 @@ export default function InternshipDetail() {
                 />
               ) : (
                 <div className="aspect-video bg-slate-800 flex items-center justify-center">
-                  <p className="text-white/60">Video preview coming soon</p>
+                  <p className="text-white/60 text-sm sm:text-base">
+                    Video preview coming soon
+                  </p>
                 </div>
               )}
             </motion.div>
@@ -361,37 +325,37 @@ export default function InternshipDetail() {
       </section>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 -mt-10 relative z-20">
-        <div className="grid lg:grid-cols-12 gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-10 relative z-20">
+        <div className="grid lg:grid-cols-12 gap-6 sm:gap-8">
           {/* Left Side */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-6 sm:space-y-8">
             {/* About the Internship */}
-            <div className="bg-white rounded-3xl p-10 shadow-xl border border-gray-100">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="p-4 bg-indigo-100 rounded-2xl">
-                  <Award className="text-indigo-600" size={32} />
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-xl border border-gray-100">
+              <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <div className="p-3 sm:p-4 bg-indigo-100 rounded-2xl">
+                  <Award className="text-indigo-600" size={28} />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   About the Internship
                 </h2>
               </div>
-              <div className="text-gray-600 text-[17px] leading-relaxed whitespace-pre-line">
+              <div className="text-gray-600 text-base sm:text-[17px] leading-relaxed whitespace-pre-line">
                 {internship.description ||
                   "5-month Full Stack Developer Internship program."}
               </div>
             </div>
 
             {/* Requirements */}
-            <div className="bg-white rounded-3xl p-10 shadow-xl border border-gray-100">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="p-4 bg-indigo-100 rounded-2xl">
-                  <Target className="text-indigo-600" size={32} />
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-xl border border-gray-100">
+              <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <div className="p-3 sm:p-4 bg-indigo-100 rounded-2xl">
+                  <Target className="text-indigo-600" size={28} />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   Requirements
                 </h2>
               </div>
-              <div className="text-gray-600 text-[17px] leading-relaxed whitespace-pre-line">
+              <div className="text-gray-600 text-base sm:text-[17px] leading-relaxed whitespace-pre-line">
                 {internship.requirements ||
                   `• HTML, CSS & JavaScript (ES6+)\n• Basic knowledge of React.js\n• Understanding of Git & GitHub\n• Problem-solving skills\n• Team work & communication\n• Minimum 15 hours/week commitment\n• Laptop with stable internet`}
               </div>
@@ -399,47 +363,53 @@ export default function InternshipDetail() {
           </div>
 
           {/* Right Sidebar */}
-          <div className="lg:col-span-5 space-y-8">
+          <div className="lg:col-span-5 space-y-6 sm:space-y-8">
             {/* Mentors */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
-              <div className="flex items-center gap-4 mb-8">
-                <Users className="text-indigo-600" size={32} />
-                <h2 className="text-3xl font-bold text-gray-900">Mentors</h2>
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-100">
+              <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <Users className="text-indigo-600" size={28} />
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  Mentors
+                </h2>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {internship.mentors && internship.mentors.length > 0 ? (
                   internship.mentors.map((mentor: any, index: number) => (
                     <div
                       key={index}
-                      className="flex gap-4 p-5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all"
+                      className="flex gap-3 sm:gap-4 p-4 sm:p-5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all"
                     >
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-2xl shadow-inner">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-xl sm:text-2xl shadow-inner shrink-0">
                         {mentor.name?.[0] || "S"}
                       </div>
                       <div>
-                        <p className="font-semibold text-xl text-gray-900">
+                        <p className="font-semibold text-lg sm:text-xl text-gray-900">
                           {mentor.name}
                         </p>
-                        <p className="text-indigo-600 font-medium">
+                        <p className="text-sm sm:text-base text-indigo-600 font-medium">
                           {mentor.expertise}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 italic">No mentors listed yet.</p>
+                  <p className="text-gray-500 italic text-sm sm:text-base">
+                    No mentors listed yet.
+                  </p>
                 )}
               </div>
             </div>
 
             {/* CTA */}
-            <div className="bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-3xl p-10 shadow-2xl">
-              <Calendar size={48} className="mb-6 opacity-90" />
-              <h3 className="text-3xl font-bold mb-4">Launch Your Career</h3>
-              <p className="text-white/80 mb-8 leading-relaxed">
+            <div className="bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-2xl">
+              <Calendar size={40} className="mb-4 sm:mb-6 opacity-90" />
+              <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+                Launch Your Career
+              </h3>
+              <p className="text-white/80 mb-6 sm:mb-8 leading-relaxed text-sm sm:text-base">
                 Apply today and get a chance to work with industry leaders.
               </p>
-              <button className="w-full py-4 bg-white text-indigo-700 font-bold text-lg rounded-2xl hover:bg-indigo-50 transition-all">
+              <button className="w-full py-3 sm:py-4 bg-white text-indigo-700 font-bold text-base sm:text-lg rounded-2xl hover:bg-indigo-50 transition-all">
                 Join Now
               </button>
             </div>
@@ -447,7 +417,42 @@ export default function InternshipDetail() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* ==================== ENROLLMENT MODAL ==================== */}
+      {showEnrollModal &&
+        createPortal(
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl sm:rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
+              {/* Header */}
+              <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-6 flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center bg-green-100 text-green-600 shrink-0">
+                  <CheckCircle size={24} />
+                </div>
+
+                <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">
+                  {modalTitle}
+                </h3>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 sm:px-8 pb-4 sm:pb-6">
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                  {modalMessage}
+                </p>
+              </div>
+
+              {/* Footer */}
+              <div className="border-t px-6 sm:px-8 py-4 sm:py-6 bg-gray-50 flex justify-end">
+                <button
+                  onClick={() => setShowEnrollModal(false)}
+                  className="px-5 sm:px-6 py-2.5 sm:py-3 bg-gray-900 text-white rounded-xl hover:bg-black transition text-sm sm:text-base font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

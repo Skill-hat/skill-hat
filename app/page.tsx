@@ -23,16 +23,15 @@ import CountUp from "@/src/components/CountUp";
 import { useRouter } from "next/navigation";
 import { GraduationCap, FileText } from "lucide-react";
 import CircularText from "@/src/components/CircularText";
-import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_APP_URL;
 
 // Background Images
 const heroImages = [
-  "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2000",
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000",
-  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2000",
-  "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000",
+  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2000", // team coding
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000", // planning board
+  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2000", // open laptop + code
+  "https://images.unsplash.com/photo-1581092787732-03b0d29a8aec?q=80&w=2000", // servers / backend
 ];
 
 const stats = [
@@ -106,34 +105,47 @@ const MentorCard = ({ mentor }: any) => {
   return (
     <motion.div
       whileHover={{ y: -6 }}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 group cursor-pointer w-full"
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden"
     >
-      <img
-        src={mentor.imageUrl || "/placeholder.jpg"}
-        className="w-full h-32 sm:h-36 object-cover rounded-xl mb-3"
-        alt={mentor.name}
-      />
+      {/* Image with experience badge */}
+      <div className="relative h-40 sm:h-48 overflow-hidden">
+        <img
+          src={mentor.imageUrl || "/placeholder.jpg"}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          alt={mentor.name}
+        />
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        {/* Experience badge – highlighted */}
+        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-blue-600 px-3 py-1 rounded-full text-xs font-bold shadow">
+          {mentor.experience} yrs exp
+        </div>
+      </div>
 
-      <div className="px-3 pb-3">
-        <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-          {mentor.name}
-        </h3>
-
-        <p className="text-xs sm:text-sm text-blue-600 font-medium mb-2">
-          {mentor.expertise}
-        </p>
-
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-2">
-          <GraduationCap size={14} className="text-blue-500" />
-          <span className="line-clamp-1">
-            {mentor.qualification || "No qualification"}
-          </span>
+      {/* Card content */}
+      <div className="p-4 sm:p-5 space-y-3">
+        {/* Name & Email */}
+        <div>
+          <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
+            {mentor.name}
+          </h3>
+          <p className="text-xs text-gray-500 truncate">{mentor.email}</p>
         </div>
 
-        <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-500 mb-3">
-          <FileText size={14} className="text-gray-400 mt-[2px]" />
+        {/* Expertise with icon – fixed size */}
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+          <GraduationCap size={16} className="text-blue-500 shrink-0" />
+          <span className="line-clamp-1">{mentor.expertise}</span>
+        </div>
+
+        {/* Bio with icon – fixed size */}
+        <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-500">
+          <FileText size={14} className="text-gray-400 mt-0.5 shrink-0" />
           <p className="line-clamp-2">{mentor.bio || "No bio available"}</p>
         </div>
+
+        {/* Optional View Profile link */}
+
       </div>
     </motion.div>
   );
@@ -144,14 +156,39 @@ export default function Home() {
   const [mentors, setMentors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [imgIndex, setImgIndex] = useState(0);
+  const [imagesReady, setImagesReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const preload = heroImages.map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // keep going even if one fails
+        }),
+    );
+
+    Promise.all(preload).then(() => {
+      if (!cancelled) setImagesReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Hero Background Auto Change
   useEffect(() => {
+    if (!imagesReady) return; // wait until loaded
+
     const timer = setInterval(() => {
       setImgIndex((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
+    }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [imagesReady]);
 
   // Fetch Data
   useEffect(() => {
@@ -178,33 +215,46 @@ export default function Home() {
   return (
     <div className="space-y-16 md:space-y-20 pb-16 md:pb-20 bg-[#fcfcfc]">
       {/* HERO SECTION - Responsive */}
-      <section className="relative min-h-[85vh] flex items-center justify-center text-center px-4 overflow-hidden">
+      {/* HERO SECTION - FULLY RESPONSIVE */}
+      <section className="relative min-h-[85vh] flex items-center justify-center text-center px-4 overflow-hidden bg-slate-900">
+        {/* Hero background – dark fallback always visible */}
         <div className="absolute inset-0 z-0">
-          {/* <AnimatePresence mode="wait">
-            <motion.img
-              key={imgIndex}
-              src={heroImages[imgIndex]}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="absolute inset-0 w-full h-full object-cover"
-              alt="Background"
-            />
-          </AnimatePresence> */}
-
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#fcfcfc]" />
+          {imagesReady ? (
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                key={imgIndex}
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ duration: 1.6, ease: "easeInOut" }}
+                className="absolute inset-0 w-full h-full bg-slate-900"
+                style={{
+                  backgroundImage: `url(${heroImages[imgIndex]})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
+            </AnimatePresence>
+          ) : (
+            <div className="absolute inset-0 bg-slate-900" />
+          )}
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto space-y-6 px-4">
-          <div className="absolute left-[-200] top-30 -translate-y-1/2 hidden md:block">
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/10 via-black/10 to-[#fcfcfc]" />
+
+        {/* Content */}
+        <div className="relative z-20 max-w-4xl mx-auto space-y-6 px-4">
+          {/* CircularText */}
+          <div className="absolute left-[-200] top-40 -translate-y-1/2 hidden md:block">
             <CircularText
               text="WELCOME*TO*SKILLHAT*"
-              spinDuration={30}
+              spinDuration={40}
               className="custom-class"
             />
           </div>
 
+          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -250,7 +300,7 @@ export default function Home() {
       </section>
 
       {/* STATS SECTION - Responsive */}
-      <div className="max-w-7xl mx-auto px-4 -mt-20 sm:-mt-28 md:-mt-32 relative z-20">
+      <div className="px-4 -mt-20 sm:-mt-28 md:-mt-32 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 bg-white p-6 md:p-8 lg:p-10 rounded-[2rem] border shadow-xl">
           {stats.map((stat, i) => (
             <div key={i} className="text-center group">
